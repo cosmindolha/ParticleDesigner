@@ -1,0 +1,25 @@
+to do
+ios test
+Load graphics/files from dropbox/google drive
+export code>xml
+animate params
+linear, circular animation
+Layers, particle effects, 2D/3D elements
+
+
+Layers can be particles, or graphic (only one)
+graphics can be animated, rotation, scale, simple moves
+
+designs can be saved in local and server db
+designs can be exported to be used in Starling
+
+need layer system
+need parser
+need connection to db
+
+
+
+
+
+
+
