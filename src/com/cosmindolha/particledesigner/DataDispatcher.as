@@ -5,6 +5,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.CurrentButtonEvent;
 	import com.cosmindolha.particledesigner.events.SetKnobEvent;
 	import com.cosmindolha.particledesigner.events.SetDataEvent;
+	import com.cosmindolha.particledesigner.events.ColorPickerEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
@@ -19,7 +20,13 @@ package com.cosmindolha.particledesigner
 		private var selectedButtonEvent:CurrentButtonEvent;
 		private var setKnobEvent:SetKnobEvent;
 		private var setDataEvent:SetDataEvent;
+		private var setColorEvent:ColorPickerEvent;
 		
+		public function setColor(data:Object):void
+		{
+			setColorEvent = new ColorPickerEvent(ColorPickerEvent.SET_COLOR, data);
+			dispatchEvent(setColorEvent);
+		}
 		public function setKnob(data:Object):void
 		{
 			setKnobEvent = new SetKnobEvent(SetKnobEvent.SET_KNOB, data);

@@ -33,6 +33,11 @@ package com.cosmindolha.particledesigner
 			starlingPartDesigner = new Starling(ParticleScreen, stage);
 			starlingPartDesigner.start();
 			
+			
+		//	starlingPartDesigner.showStatsAt( "left", "top",  3);
+			
+			
+			
 			// Entry point
 			// New to AIR? Please read *carefully* the readme.txt files!
 			

@@ -1,6 +1,7 @@
 package com.cosmindolha.particledesigner 
 {
 	import com.cosmindolha.particledesigner.events.CurrentValEvent;
+	import de.flintfabrik.starling.utils.ColorArgb;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	import starling.display.Sprite;
@@ -14,6 +15,7 @@ package com.cosmindolha.particledesigner
 	import de.flintfabrik.starling.display.FFParticleSystem.SystemOptions;
 	
 	import com.cosmindolha.particledesigner.events.CurrentButtonEvent;
+	import com.cosmindolha.particledesigner.events.ColorPickerEvent;
 
 		
 	/**
@@ -36,8 +38,8 @@ package com.cosmindolha.particledesigner
 		private var ps:FFParticleSystem;
 		private var selectedProp:int;
 		private var sysOpt:SystemOptions;
-		private var propsNameArray:Array;
 		private var particleDataArray:Array;
+
 		
 		
 		public function ParticleScreen() 
@@ -54,8 +56,18 @@ package com.cosmindolha.particledesigner
 			
 			particleDataArray = new Array();
 			
+			//for testing, color should be moved from here
+			dispatcher.addEventListener(ColorPickerEvent.SET_COLOR, onSetColor);
 			
 		}
+		private function onSetColor(e:ColorPickerEvent):void
+		{
+			var rgbObj:Object = e.customData;
+			//var mColorArgb:ColorArgb = ColorArgb.fromRgb(rgbObj.rgb);
+			ps.startColor = new ColorArgb(rgbObj.r, rgbObj.g, rgbObj.b, 1);
+			
+		}
+		
 		private function onButtonPressed(e:CurrentButtonEvent):void
 		{
 			var obj:Object = e.customData;
@@ -69,7 +81,6 @@ package com.cosmindolha.particledesigner
 		}
 		private function init():void
 		{
-			
 			
 			var bubbleConfig:XML =  new XML(resources.assets.getXml("story"));
 			var bubbleTexture:Texture = resources.assets.getTexture("blurb");
@@ -97,7 +108,8 @@ package com.cosmindolha.particledesigner
 			delaySetValueTimer.start();
 			
 			
-			setPropsNames();
+			setInitData();
+			
 			
 		}
 		
@@ -117,51 +129,45 @@ package com.cosmindolha.particledesigner
 			uiValue = obj.val;
 			
 		}
-		private function setPropsNames():void
+		private function setInitData():void
 		{
-			propsNameArray = new Array();
+			particleDataArray = new Array();
 			
-			propsNameArray.push("maxNumParticles");
-			propsNameArray.push("lifespan");
-			propsNameArray.push("lifespanVariance");
-			propsNameArray.push("startSize");
-			propsNameArray.push("startSizeVariance");
-			propsNameArray.push("endSize");
-			propsNameArray.push("endSizeVariance");
-			propsNameArray.push("emitAngle");
-			propsNameArray.push("emitAngleVariance");
-			propsNameArray.push("startRotation");
-			propsNameArray.push("startRotationVariance");
-			propsNameArray.push("endRotation");
-			propsNameArray.push("endRotationVariance");
-			//
-			propsNameArray.push("emitterXVariance");
-			propsNameArray.push("emitterYVariance");
-			propsNameArray.push("speed");
-			propsNameArray.push("speedVariance");
-			propsNameArray.push("gravityX");
-			propsNameArray.push("gravityY");
+			particleDataArray.push({label:"Max \n"+"Particles", props:"maxNumParticles", val:0, rot:0});
+			particleDataArray.push({label:"Lifespan", props:"lifespan", val:0, rot:0});
+			particleDataArray.push({label:"Lifespan \n" + "Variance", props:"lifespanVariance", val:0, rot:0});
+			particleDataArray.push({label:"Start Size", props:"startSize", val:0, rot:0});
+			particleDataArray.push({label:"Start Size \n" + "Variance", props:"startSizeVariance", val:0, rot:0});
+			particleDataArray.push({label:"Finish Size", props:"endSize", val:0, rot:0});
+			particleDataArray.push({label:"Finish Size \n" + "Variance", props:"endSizeVariance", val:0, rot:0});
+			particleDataArray.push({label:"Emiter Angle", props:"emitAngle", val:0, rot:0});
+			particleDataArray.push({label:"Emiter Angle \n" + "Variance", props:"emitAngleVariance", val:0, rot:0});
+			particleDataArray.push({label:"Rotation Start", props:"startRotation", val:0, rot:0});
+			particleDataArray.push({label:"Rotation Start \n" + "Variance", props:"startRotationVariance", val:0, rot:0});
+			particleDataArray.push({label:"Rotation End", props:"endRotation", val:0, rot:0});
+			particleDataArray.push({label:"Rotation End \n" + "Variance", props:"endRotationVariance", val:0, rot:0});
+			particleDataArray.push({label:"X Variance", props:"emitterXVariance", val:0, rot:0});
+			particleDataArray.push({label:"Y Variance", props:"emitterYVariance", val:0, rot:0});
+			particleDataArray.push({label:"Speed", props:"speed", val:0, rot:0});
+			particleDataArray.push({label:"Speed Variance", props:"speedVariance", val:0, rot:0});
+			particleDataArray.push({label:"Gravity X", props:"gravityX", val:0, rot:0});
+			particleDataArray.push({label:"Gravity Y", props:"gravityY", val:0, rot:0});
+			particleDataArray.push({label:"Rad. Acc.", props:"radialAcceleration", val:0, rot:0});
+			particleDataArray.push({label:"Rad. Acc. \n" + "Variance", props:"radialAccelerationVariance", val:0, rot:0});
+			particleDataArray.push({label:"Tan. Acc.", props:"tangentialAcceleration", val:0, rot:0});
+			particleDataArray.push({label:"Tan. Acc. \n" + "Variance", props:"tangentialAccelerationVariance", val:0, rot:0});
 			
-			propsNameArray.push("radialAcceleration");
-			propsNameArray.push("radialAccelerationVariance");
-			propsNameArray.push("tangentialAcceleration");
-			propsNameArray.push("tangentialAccelerationVariance");
-			
-			
-			for (var i:int = 0; i < propsNameArray.length; i++)
+
+			for (var i:int = 0; i < particleDataArray.length; i++)
 			{
-				var obj:Object = new Object();
-				
-				obj.val = ps[propsNameArray[i]];
-				obj.rot = 0;
-				particleDataArray[i] = obj;
+				particleDataArray[i].val = ps[particleDataArray[i].props];				
 			}
 			dispatcher.setData(particleDataArray);
-			
 		}
 		private function setParam():void
 		{
-			ps[propsNameArray[selectedProp]] = uiValue;
+			
+			ps[particleDataArray[selectedProp].props] = uiValue;
 		}
 	}
 

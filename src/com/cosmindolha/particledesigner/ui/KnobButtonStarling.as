@@ -1,5 +1,6 @@
 package com.cosmindolha.particledesigner.ui 
 {
+	import com.cosmindolha.particledesigner.Resource;
 	import flash.geom.Rectangle;
 	import com.cosmindolha.particledesigner.DataDispatcher;
 	import com.cosmindolha.particledesigner.events.SetKnobEvent;
@@ -25,6 +26,7 @@ package com.cosmindolha.particledesigner.ui
 	{
 
 		private var dispatcher:DataDispatcher;
+		private var resources:Resource;
 		private var knobSprite:starling.display.Sprite;
 		private var labelField:TextField;
 		private var numberField:TextField;
@@ -33,14 +35,19 @@ package com.cosmindolha.particledesigner.ui
 		private var paramID:int;
 		
 		
-		public function KnobButtonStarling(dd:DataDispatcher) 
+		public function KnobButtonStarling(dd:DataDispatcher, rr:Resource) 
 		{
 			//todo remember rotation and Number
 			
 			dispatcher = dd;
+			resources = rr;
 			dispatcher.addEventListener(SetKnobEvent.SET_KNOB, onSetKnob);
 			
-			
+			var hcolorcircle:Image = new Image(resources.assets.getTexture("holecolorcircle"));
+			hcolorcircle.x = -100;
+			hcolorcircle.y = -100;
+			addChild(hcolorcircle);
+			hcolorcircle.alpha = 0.5;
 			var img:Image = new Image(knobGraphics());
 			
 			knobValue = 0;
