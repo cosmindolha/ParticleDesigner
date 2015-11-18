@@ -93,7 +93,7 @@ package com.cosmindolha.particledesigner.ui
 		{
 			var sp:flash.display.Sprite = new flash.display.Sprite();
 			sp.graphics.beginFill(0x8081ff, .4);
-			sp.graphics.drawRoundRect(0, 0,  labelField.textBounds.width+8+margin, 40, 10, 10);
+			sp.graphics.drawRoundRect(0, 0,  60, 45, 5, 5);
 			sp.graphics.endFill();
 			
 			var bmpData:BitmapData = new BitmapData(sp.width, sp.height, true, 0x00000000);

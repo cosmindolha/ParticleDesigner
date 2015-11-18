@@ -9,10 +9,10 @@ package com.cosmindolha.particledesigner.events
 	public class SetDataEvent extends Event
 	{
 		
-		public var customData:Array;
+		public var customData:Object;
 		public static const DATA_SET:String = "dataset";
 		
-		public function SetDataEvent(type:String, customData:Array, bubbles:Boolean = false, cancelable:Boolean = false):void
+		public function SetDataEvent(type:String, customData:Object, bubbles:Boolean = false, cancelable:Boolean = false):void
 		{
 			this.customData = customData;
 			super(type, bubbles, cancelable);

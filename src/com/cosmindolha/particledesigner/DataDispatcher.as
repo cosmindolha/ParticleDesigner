@@ -6,6 +6,9 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.SetKnobEvent;
 	import com.cosmindolha.particledesigner.events.SetDataEvent;
 	import com.cosmindolha.particledesigner.events.ColorPickerEvent;
+	import com.cosmindolha.particledesigner.events.CurrentColorButtonEvent;
+	import com.cosmindolha.particledesigner.events.SetColorPickerEvent;
+	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
@@ -18,10 +21,18 @@ package com.cosmindolha.particledesigner
 	
 		private var setValueEvent:CurrentValEvent;
 		private var selectedButtonEvent:CurrentButtonEvent;
+		private var selectedColorButtonEvent:CurrentColorButtonEvent;
 		private var setKnobEvent:SetKnobEvent;
 		private var setDataEvent:SetDataEvent;
 		private var setColorEvent:ColorPickerEvent;
+		private var setColorPickerEvent:SetColorPickerEvent;
+		private var setMenuButtonEvent:CurrentMenuButtonEvent;
 		
+		public function menuClicked(data:Object):void
+		{
+			setMenuButtonEvent = new CurrentMenuButtonEvent(CurrentMenuButtonEvent.SELECTED_MENU_BUTTON, data);
+			dispatchEvent(setMenuButtonEvent);
+		}
 		public function setColor(data:Object):void
 		{
 			setColorEvent = new ColorPickerEvent(ColorPickerEvent.SET_COLOR, data);
@@ -31,9 +42,15 @@ package com.cosmindolha.particledesigner
 		{
 			setKnobEvent = new SetKnobEvent(SetKnobEvent.SET_KNOB, data);
 			dispatchEvent(setKnobEvent);
+		}		
+		
+		public function setColorPicker(data:Object):void
+		{
+			setColorPickerEvent = new SetColorPickerEvent(SetColorPickerEvent.SET_COLOR_PICKER, data);
+			dispatchEvent(setColorPickerEvent);
 		}	
 		
-		public function setData(data:Array):void
+		public function setData(data:Object):void
 		{
 			setDataEvent = new SetDataEvent(SetDataEvent.DATA_SET, data);
 			dispatchEvent(setDataEvent);
@@ -43,6 +60,12 @@ package com.cosmindolha.particledesigner
 		{
 			selectedButtonEvent = new CurrentButtonEvent(CurrentButtonEvent.SELECTED_BUTTON, data);
 			dispatchEvent(selectedButtonEvent);
+		}		
+		
+		public function buttonColorClicked(data:Object):void
+		{
+			selectedColorButtonEvent = new CurrentColorButtonEvent(CurrentColorButtonEvent.SELECTED_COLOR_BUTTON, data);
+			dispatchEvent(selectedColorButtonEvent);
 		}
 		
 		

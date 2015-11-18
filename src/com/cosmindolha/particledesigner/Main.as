@@ -34,7 +34,7 @@ package com.cosmindolha.particledesigner
 			starlingPartDesigner.start();
 			
 			
-		//	starlingPartDesigner.showStatsAt( "left", "top",  3);
+			//starlingPartDesigner.showStatsAt( "left", "bottom", 2);
 			
 			
 			
