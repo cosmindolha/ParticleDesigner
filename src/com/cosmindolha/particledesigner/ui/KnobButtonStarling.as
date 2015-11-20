@@ -37,8 +37,6 @@ package com.cosmindolha.particledesigner.ui
 		
 		public function KnobButtonStarling(dd:DataDispatcher, rr:Resource) 
 		{
-			//todo remember rotation and Number
-			
 			dispatcher = dd;
 			resources = rr;
 			dispatcher.addEventListener(SetKnobEvent.SET_KNOB, onSetKnob);

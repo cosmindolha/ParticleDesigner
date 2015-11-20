@@ -9,6 +9,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.CurrentColorButtonEvent;
 	import com.cosmindolha.particledesigner.events.SetColorPickerEvent;
 	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
+	import com.cosmindolha.particledesigner.events.ChangeBlendEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
@@ -27,7 +28,19 @@ package com.cosmindolha.particledesigner
 		private var setColorEvent:ColorPickerEvent;
 		private var setColorPickerEvent:SetColorPickerEvent;
 		private var setMenuButtonEvent:CurrentMenuButtonEvent;
+		private var changeBlendColorEvent:ChangeBlendEvent;
+		private var setBlendKnobEvent:ChangeBlendEvent;
 		
+		public function setBlendKnob(data:Object):void
+		{
+			setBlendKnobEvent = new ChangeBlendEvent(ChangeBlendEvent.SET_BLEND_KNOB, data);
+			dispatchEvent(setBlendKnobEvent);
+		}
+		public function setBlendColor(data:Object):void
+		{
+			changeBlendColorEvent = new ChangeBlendEvent(ChangeBlendEvent.SET_BLEND_COLOR, data);
+			dispatchEvent(changeBlendColorEvent);
+		}
 		public function menuClicked(data:Object):void
 		{
 			setMenuButtonEvent = new CurrentMenuButtonEvent(CurrentMenuButtonEvent.SELECTED_MENU_BUTTON, data);

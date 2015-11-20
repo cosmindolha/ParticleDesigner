@@ -2,7 +2,9 @@ package com.cosmindolha.particledesigner
 {
 	import com.cosmindolha.particledesigner.ui.Button;
 	import com.cosmindolha.particledesigner.ui.ColorButton;
+	import com.cosmindolha.particledesigner.ui.ColorPicker;
 	import com.cosmindolha.particledesigner.ui.RightMenuButton;
+	import com.cosmindolha.particledesigner.ui.KnobBlendColorStarling;
 	import starling.display.DisplayObject;
 	import starling.display.Image;
 	import starling.display.Quad;
@@ -14,6 +16,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.CurrentColorButtonEvent;
 	import com.cosmindolha.particledesigner.events.ColorPickerEvent;
 	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
+	import com.cosmindolha.particledesigner.events.ChangeBlendEvent;
 	import starling.events.Event;
 	import starling.textures.Texture;
 	
@@ -43,6 +46,7 @@ package com.cosmindolha.particledesigner
 		
 		private var knobController:KnobButtonStarling;
 		private var colorPicker:ColorPicker;
+		private var knobBlendColorController:KnobBlendColorStarling;
 		
 		private var buttonHolderConfig:Sprite;
 		private var buttonHolderEmitter:Sprite;
@@ -58,9 +62,16 @@ package com.cosmindolha.particledesigner
 			rightMenuArray.push("Particle \nConfig");
 			rightMenuArray.push("Emiter \nType");
 			rightMenuArray.push("Color \nConfig");
-			rightMenuArray.push("Layers");
+			rightMenuArray.push("Hide All");
 			
 			//controllers
+			knobBlendColorController = new KnobBlendColorStarling(dispatcher, resources);
+			
+			knobBlendColorController.x = 850;
+			knobBlendColorController.y = 600;	
+			
+			//addChild(knobBlendColorController);
+			
 			knobController = new KnobButtonStarling(dispatcher, resources);
 			
 			knobController.x = 850;
@@ -86,6 +97,7 @@ package com.cosmindolha.particledesigner
 			//controllers
 			uiSpriteArray.push(colorPicker);
 			uiSpriteArray.push(knobController);
+			uiSpriteArray.push(knobBlendColorController);
 			
 			
 			dispatcher.addEventListener(CurrentButtonEvent.SELECTED_BUTTON, onButtonPressed);
@@ -100,6 +112,9 @@ package com.cosmindolha.particledesigner
 			
 			dispatcher.addEventListener(CurrentMenuButtonEvent.SELECTED_MENU_BUTTON, onRightMenuClicked);
 			
+			dispatcher.addEventListener(ChangeBlendEvent.SET_BLEND_COLOR, onChangeBlendEvent);
+			
+			
 			buildRightMenu();
 				
 			
@@ -107,6 +122,15 @@ package com.cosmindolha.particledesigner
 			
 		}
 		
+		private function onChangeBlendEvent(e:ChangeBlendEvent):void
+		{
+			var obj:Object = e.customData;
+			
+			colorDataArray[buttonColorID].blend = obj.blend;
+			colorDataArray[buttonColorID].rot = obj.rot;
+			
+			
+		}
 		private function addToUI():void
 		{
 			for (var i:int = 0; i < uiSpriteArray.length; i++)
@@ -183,13 +207,8 @@ package com.cosmindolha.particledesigner
 		private function buildRightMenu():void
 		{
 			hideUI();
-			
-			var menuBgQuad:Quad = new Quad(70, 768, 0x000000);
-			menuBgQuad.x = 1024 - menuBgQuad.width;
-			menuBgQuad.alpha = 0.1;
-			//addChild(menuBgQuad);
-			
-			var toX:int = menuBgQuad.x + 5;
+						
+			var toX:int = 960;
 			var toY:int = 50;
 			
 			for (var i:int = 0; i < rightMenuArray.length; i++)
@@ -204,6 +223,7 @@ package com.cosmindolha.particledesigner
 		
 		private function onSetColor(e:ColorPickerEvent):void
 		{
+			
 			var rgbObj:Object = e.customData;
 			
 			colorDataArray[buttonColorID].a = rgbObj.a;
@@ -211,7 +231,8 @@ package com.cosmindolha.particledesigner
 			colorDataArray[buttonColorID].x = rgbObj.x;
 			colorDataArray[buttonColorID].y = rgbObj.y;
 			colorDataArray[buttonColorID].rot = rgbObj.rot;
-		
+			
+			
 		}
 		
 		private function setData(e:SetDataEvent):void
@@ -255,6 +276,23 @@ package com.cosmindolha.particledesigner
 			colorObject.rot = colorDataArray[buttonColorID].rot;
 			
 			dispatcher.setColorPicker(colorObject);
+			
+
+			if (buttonColorID == 5 || buttonColorID == 6)
+			{
+				knobBlendColorController.visible = true;
+				colorPicker.visible = false;
+				var blendKnobObject:Object = new Object();
+				
+				blendKnobObject.blend =  colorDataArray[buttonColorID].blend;
+				blendKnobObject.rot =  colorDataArray[buttonColorID].rot;
+				
+				dispatcher.setBlendKnob(blendKnobObject);
+			}else{
+				
+				knobBlendColorController.visible = false;
+				colorPicker.visible = true;
+			}
 		
 		}
 		
