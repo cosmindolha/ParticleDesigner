@@ -21,6 +21,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.ColorPickerEvent;
 	import com.cosmindolha.particledesigner.events.CurrentColorButtonEvent;
 	import com.cosmindolha.particledesigner.events.ChangeBlendEvent;
+	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
 	import flash.display3D.Context3DBlendFactor;
 		
 	/**
@@ -70,15 +71,30 @@ package com.cosmindolha.particledesigner
 			dispatcher.addEventListener(CurrentButtonEvent.SELECTED_BUTTON, onButtonPressed);
 			dispatcher.addEventListener(CurrentColorButtonEvent.SELECTED_COLOR_BUTTON, onColorButtonPressed);
 			
-			dispatcher.addEventListener(ChangeBlendEvent.SET_BLEND_COLOR, onBlendColorChange);
-			
-
-			
+			dispatcher.addEventListener(ChangeBlendEvent.SET_BLEND_COLOR, onBlendColorChange);			
 			
 			dispatcher.addEventListener(ColorPickerEvent.SET_COLOR, onSetColor);
 			
+			dispatcher.addEventListener(CurrentMenuButtonEvent.SELECTED_MENU_BUTTON, onRightMenuClicked);
+			
 		}
 		//fires when you chnage the blend color knob
+		private function onRightMenuClicked(e:CurrentMenuButtonEvent):void
+		{
+			var obj:Object = e.customData;
+			
+			var id:int = obj.id;
+			
+			switch(id)
+			{
+			case 1:
+				ps.emitterType = 0;
+				break;
+			case 2:
+				ps.emitterType = 1;
+				break;
+			}	
+		}
 		private function onBlendColorChange(e:ChangeBlendEvent):void
 		{
 			var obj:Object = e.customData;
@@ -229,8 +245,8 @@ package com.cosmindolha.particledesigner
 			
 			FFParticleSystem.init(1024, false, 512, 4);
 			ps = new FFParticleSystem(sysOpt);
-			ps.x = 160;
-			ps.y = 100;
+			ps.emitterX = stage.stageWidth/2;
+			ps.emitterY =stage.stageHeight/2;
 			addChild(ps);
 			
 			ps.start();
@@ -302,7 +318,8 @@ package com.cosmindolha.particledesigner
 			particleDataArray.push({label:"Rot Start", props:"startRotation", val:0, rot:0});
 			particleDataArray.push({label:"Rot Start \n" + "Var", props:"startRotationVariance", val:0, rot:0});
 			particleDataArray.push({label:"Rot End", props:"endRotation", val:0, rot:0});
-			particleDataArray.push({label:"Rot End \n" + "Var", props:"endRotationVariance", val:0, rot:0});
+			particleDataArray.push( { label:"Rot End \n" + "Var", props:"endRotationVariance", val:0, rot:0 } );
+			//emitter gravity
 			particleDataArray.push({label:"X Var", props:"emitterXVariance", val:0, rot:0});
 			particleDataArray.push({label:"Y Var", props:"emitterYVariance", val:0, rot:0});
 			particleDataArray.push({label:"Speed", props:"speed", val:0, rot:0});
@@ -313,6 +330,14 @@ package com.cosmindolha.particledesigner
 			particleDataArray.push({label:"Rad. Acc. \n" + "Variance", props:"radialAccelerationVariance", val:0, rot:0});
 			particleDataArray.push({label:"Tan. Acc.", props:"tangentialAcceleration", val:0, rot:0});
 			particleDataArray.push({label:"Tan. Acc. \n" + "Variance", props:"tangentialAccelerationVariance", val:0, rot:0});
+			//emitter radial
+			particleDataArray.push({label:"Max. Rad", props:"maxRadius", val:0, rot:0});
+			particleDataArray.push({label:"Max. Rad\nVariance", props:"maxRadiusVariance", val:0, rot:0});
+			particleDataArray.push({label:"Min. Rad", props:"minRadius", val:0, rot:0});
+			particleDataArray.push({label:"Min. Rad\nVariance", props:"minRadiusVariance", val:0, rot:0});
+			particleDataArray.push({label:"Rot/Sec", props:"rotatePerSecond", val:0, rot:0});
+			particleDataArray.push({label:"Rot/Sec\nVariance", props:"rotatePerSecondVariance", val:0, rot:0});
+	
 			
 
 			var i:int = 0;
@@ -345,7 +370,9 @@ package com.cosmindolha.particledesigner
 		}
 		private function setParam():void
 		{
+			//trace(selectedProp)
 			
+			//emitterType
 			ps[particleDataArray[selectedProp].props] = uiValue;
 		}
 	}

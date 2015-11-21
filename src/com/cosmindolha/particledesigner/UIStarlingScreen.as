@@ -49,7 +49,8 @@ package com.cosmindolha.particledesigner
 		private var knobBlendColorController:KnobBlendColorStarling;
 		
 		private var buttonHolderConfig:Sprite;
-		private var buttonHolderEmitter:Sprite;
+		private var buttonHolderEmitterGravity:Sprite;
+		private var buttonHolderEmitterRadial:Sprite;
 		private var buttonColorHolder:Sprite;
 		
 		public function UIStarlingScreen(rs:Resource, dd:DataDispatcher)
@@ -60,7 +61,8 @@ package com.cosmindolha.particledesigner
 			rightMenuArray = new Array();
 			
 			rightMenuArray.push("Particle \nConfig");
-			rightMenuArray.push("Emiter \nType");
+			rightMenuArray.push("Em. Type\nGravity");
+			rightMenuArray.push("Em. Type\nRadial");
 			rightMenuArray.push("Color \nConfig");
 			rightMenuArray.push("Hide All");
 			
@@ -87,13 +89,15 @@ package com.cosmindolha.particledesigner
 			
 			buttonHolderConfig = new Sprite();	
 			buttonColorHolder = new Sprite();	
-			buttonHolderEmitter = new Sprite();
+			buttonHolderEmitterGravity = new Sprite();
+			buttonHolderEmitterRadial = new Sprite();
 
 			
 			uiSpriteArray = new Array();
 			uiSpriteArray.push(buttonHolderConfig);
 			uiSpriteArray.push(buttonColorHolder);
-			uiSpriteArray.push(buttonHolderEmitter);
+			uiSpriteArray.push(buttonHolderEmitterGravity);
+			uiSpriteArray.push(buttonHolderEmitterRadial);
 			//controllers
 			uiSpriteArray.push(colorPicker);
 			uiSpriteArray.push(knobController);
@@ -141,12 +145,27 @@ package com.cosmindolha.particledesigner
 		private function showColorConfig():void
 		{
 			buttonColorHolder.visible = true;
-			colorPicker.visible = true;
+			
+			
+			if (buttonColorID >= 5)
+			{
+				colorPicker.visible = false;
+				knobBlendColorController.visible = true;
+			}else{
+				
+				colorPicker.visible = true;
+				knobBlendColorController.visible = false;
+			}
 		}
 		
-		private function showEmiterConfig():void
+		private function showRadialEmiterConfig():void
 		{
-			buttonHolderEmitter.visible = true;
+			buttonHolderEmitterRadial.visible = true;
+			knobController.visible = true;
+		}
+		private function showGravityEmiterConfig():void
+		{
+			buttonHolderEmitterGravity.visible = true;
 			knobController.visible = true;
 		}
 		
@@ -176,12 +195,15 @@ package com.cosmindolha.particledesigner
 				showParticleConfig();
 				break;
 			case 1: 
-				showEmiterConfig();
+				showGravityEmiterConfig();
 				break;
 			case 2: 
+				showRadialEmiterConfig();
+				break;	
+			case 3: 
 				showColorConfig();
 				break;
-			case 3: 
+			case 4: 
 				break;
 				
 			}
@@ -336,7 +358,14 @@ package com.cosmindolha.particledesigner
 			{
 				var buttonE:Button = new Button(dispatcher, i);
 				buttonE.text = particleDataArray[i].label;
-				buttonHolderEmitter.addChild(buttonE);
+				buttonHolderEmitterGravity.addChild(buttonE);
+			}		
+			//emitter type radial
+			for (i = 23; i < 29; i++)
+			{
+				var buttonR:Button = new Button(dispatcher, i);
+				buttonR.text = particleDataArray[i].label;
+				buttonHolderEmitterRadial.addChild(buttonR);
 			}
 			
 			
@@ -350,7 +379,8 @@ package com.cosmindolha.particledesigner
 			}
 			
 			arrangeButton(buttonHolderConfig);
-			arrangeButton(buttonHolderEmitter);
+			arrangeButton(buttonHolderEmitterGravity);
+			arrangeButton(buttonHolderEmitterRadial);
 			arrangeButton(buttonColorHolder);
 		
 		}
