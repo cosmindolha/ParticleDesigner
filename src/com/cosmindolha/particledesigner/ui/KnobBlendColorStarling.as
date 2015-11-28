@@ -49,7 +49,7 @@ package com.cosmindolha.particledesigner.ui
 			
 			knobSprite.addChild(hcolorcircle);
 			
-			labelField = new TextField(240, 80, "", "fatcow", 25, Color.WHITE, true);
+			labelField = new TextField(240, 80, "", "fatcow", 30, Color.WHITE, true);
 			labelField.hAlign = HAlign.CENTER;
 			addChild(labelField);
 			

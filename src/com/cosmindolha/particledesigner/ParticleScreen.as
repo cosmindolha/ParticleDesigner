@@ -3,12 +3,16 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.CurrentValEvent;
 	import de.flintfabrik.starling.utils.ColorArgb;
 	import flash.events.TimerEvent;
+	import flash.geom.Point;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	import flash.utils.Timer;
 	import starling.display.Canvas;
 	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
+	import starling.textures.RenderTexture;
 
 	import starling.textures.Texture;
 	import starling.core.Starling;
@@ -22,6 +26,8 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.CurrentColorButtonEvent;
 	import com.cosmindolha.particledesigner.events.ChangeBlendEvent;
 	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
+	import com.cosmindolha.particledesigner.events.LayerEvents;
+	import com.cosmindolha.particledesigner.events.MoveParticleEvent;
 	import flash.display3D.Context3DBlendFactor;
 		
 	/**
@@ -49,8 +55,16 @@ package com.cosmindolha.particledesigner
 		private var selecedColorButtonID:int = 0 ;
 		private var bgQuad:Quad;
 		private var blendValues:Array;
-	
+
+		private var allDataArray:Array;
+		private var currentParticleSystemID:int;
+		private var particleHolder:Sprite;
+		private var updateLayerPreviewTimer:Timer;
 		
+		private var particleSpriteDictionary:Dictionary;
+		
+		private var particleDictionary:Dictionary;
+	
 		
 		public function ParticleScreen() 
 		{
@@ -58,8 +72,16 @@ package com.cosmindolha.particledesigner
 			bgQuad = new Quad(1024, 768, 0x65496a);
 			addChild(bgQuad);
 			
+			particleHolder = new Sprite();
+			addChild(particleHolder);
+			
 			particleDataArray = new Array();
 			colorDataArray = new Array();
+			allDataArray = new Array();
+			
+			
+			particleSpriteDictionary = new Dictionary();
+			particleDictionary = new Dictionary();
 			
 			dispatcher = new DataDispatcher();
 			
@@ -77,21 +99,101 @@ package com.cosmindolha.particledesigner
 			
 			dispatcher.addEventListener(CurrentMenuButtonEvent.SELECTED_MENU_BUTTON, onRightMenuClicked);
 			
+			dispatcher.addEventListener(MoveParticleEvent.ON_PARTICLE_MOVE, moveParticleAround);
+			
+			//layers
+			dispatcher.addEventListener(LayerEvents.NEW_LAYER, onNewLayer);
+			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER, onLayerChange);
+			dispatcher.addEventListener(LayerEvents.REMOVE_LAYER, onRemoveLayer);
+			
+			updateLayerPreviewTimer = new Timer(500, 1);
+			
+			updateLayerPreviewTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onUpdateTimer);
+			updateLayerPreviewTimer.start();
 		}
-		//fires when you chnage the blend color knob
+		private function moveParticleAround(e:MoveParticleEvent):void
+		{
+			var point:Point = e.customData;
+			var spriteToMove:Sprite = particleSpriteDictionary[currentParticleSystemID];
+			if (spriteToMove != null)
+			{
+			spriteToMove.x = point.x;
+			spriteToMove.y = point.y;
+			}
+		}
+		private function onRemoveLayer(e:LayerEvents):void
+		{
+			//trace("deleting")
+			var spriteToDelete:Sprite = particleSpriteDictionary[currentParticleSystemID];
+			
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			
+			currentParticleSystem.dispose();
+			spriteToDelete.removeChild(currentParticleSystem);
+			removeChild(currentParticleSystem);
+			
+			delete particleSpriteDictionary[currentParticleSystemID];
+			delete particleDictionary[currentParticleSystemID];
+			
+		}
+		private function onUpdateTimer(e:TimerEvent):void
+		{
+			updateLayerPreview(currentParticleSystemID);
+			updateLayerPreviewTimer.start();
+		}
+		private function updateLayerPreview(id:int):void
+		{
+				
+			var texture:RenderTexture = new RenderTexture(1024, 768, false, .05, "bgra", false);
+			
+			var spriteToCapture:Sprite = particleSpriteDictionary[currentParticleSystemID];
+			
+			if (spriteToCapture != null)
+			{
+			texture.draw(spriteToCapture);
+			var img:Image = new Image(texture);
+			img.pivotX = img.width / 2;
+			img.pivotY = img.height / 2;
+			
+			img.scaleX = 0.12;		
+			img.scaleY = 0.12;		
+			
+			var obj:Object = new Object();
+			
+			obj.id = currentParticleSystemID;
+			obj.img = img;
+			
+			dispatcher.updateLayer(obj);
+			}
+			
+		}
+		private function onLayerChange(e:LayerEvents):void
+		{
+			
+			currentParticleSystemID = e.customData.id;
+			
+			var objectDataHolder:Object = populateDataWithCurrentSet();
+			dispatcher.setData(objectDataHolder);
+		}
+		private function onNewLayer(e:LayerEvents):void
+		{	
+			var obj:Object = e.customData;
+			newParticleSystem(obj.id);	
+		}
+		//fires when you change the blend color knob
 		private function onRightMenuClicked(e:CurrentMenuButtonEvent):void
 		{
 			var obj:Object = e.customData;
 			
 			var id:int = obj.id;
-			
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
 			switch(id)
 			{
 			case 1:
-				ps.emitterType = 0;
+				currentParticleSystem.emitterType = 0;
 				break;
 			case 2:
-				ps.emitterType = 1;
+				currentParticleSystem.emitterType = 1;
 				break;
 			}	
 		}
@@ -100,15 +202,17 @@ package com.cosmindolha.particledesigner
 			var obj:Object = e.customData;
 			var id:int = obj.blend;
 			
-			
 			if (selecedColorButtonID == 5 || selecedColorButtonID == 6)
 			{
-				ps[colorDataArray[selecedColorButtonID].props] = returnBlendString(blendValues[id]);
+				var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+				if (currentParticleSystem != null)
+				{
+					currentParticleSystem[colorDataArray[selecedColorButtonID].props] = returnBlendString(blendValues[id]);
+				}	
 			}
-			
 		}
 		
-		//given string input (Context3DBlendFactor.ZERO), returns in id with blend modes
+		//give string input (Context3DBlendFactor.ZERO), returns in id with blend modes
 		
 		private function returnBlendInteger(str:String):int
 		{
@@ -199,7 +303,15 @@ package com.cosmindolha.particledesigner
 			
 			if (selecedColorButtonID > 0 && selecedColorButtonID < 4)
 			{
-				ps[colorDataArray[selecedColorButtonID].props] = colorArgb;
+				//ps[colorDataArray[selecedColorButtonID].props] = colorArgb;
+				
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			
+				if (currentParticleSystem != null)
+				{
+					currentParticleSystem[colorDataArray[selecedColorButtonID].props] = colorArgb;
+				}	
+				
 			}
 			
 			if(selecedColorButtonID == 0){
@@ -230,13 +342,33 @@ package com.cosmindolha.particledesigner
 		{
 			init();
 		}
-		private function init():void
+		private function newParticleSystem(uniqueID:int):void
 		{
 			
+			currentParticleSystemID = uniqueID;	
 			
-			//var bg:Image = new Image(resources.assets.getTexture("bg"));
-			//addChild(bg);
+			var newParticleSprite:Sprite = new Sprite();
+			particleHolder.addChild(newParticleSprite);
 			
+			particleSpriteDictionary[currentParticleSystemID] = newParticleSprite;
+			
+			var newParticleSys:FFParticleSystem = new FFParticleSystem(sysOpt);
+			
+			newParticleSys.emitterX = 0;
+			newParticleSys.emitterY = 0;
+					
+			newParticleSprite.x = stage.stageWidth/2;
+			newParticleSprite.y = stage.stageHeight/2;
+			
+			newParticleSprite.addChild(newParticleSys);
+			
+			newParticleSys.start();
+			
+			particleDictionary[currentParticleSystemID] = newParticleSys;
+		
+		}
+		private function init():void
+		{
 			
 			var bubbleConfig:XML =  new XML(resources.assets.getXml("story"));
 			var bubbleTexture:Texture = resources.assets.getTexture("blurb");
@@ -244,29 +376,20 @@ package com.cosmindolha.particledesigner
 			sysOpt = SystemOptions.fromXML(bubbleConfig, bubbleTexture);
 			
 			FFParticleSystem.init(1024, false, 512, 4);
-			ps = new FFParticleSystem(sysOpt);
-			ps.emitterX = stage.stageWidth/2;
-			ps.emitterY =stage.stageHeight/2;
-			addChild(ps);
 			
-			ps.start();
-			
+			newParticleSystem(0);
 			
 			var ui:UIStarlingScreen = new UIStarlingScreen(resources, dispatcher);
-			addChild(ui);
-			
+			addChild(ui);	
 			
 			dispatcher.addEventListener(CurrentValEvent.UI_VALUE, setVal);
-
 			
 			delaySetValueTimer = new Timer(200, 1);
 			delaySetValueTimer.addEventListener(TimerEvent.TIMER_COMPLETE, setValueTimer);
 			delaySetValueTimer.start();
-			
-			
+				
 			setInitData();
-			
-			
+				
 		}
 		
 		private function setValueTimer(e:TimerEvent):void
@@ -338,42 +461,67 @@ package com.cosmindolha.particledesigner
 			particleDataArray.push({label:"Rot/Sec", props:"rotatePerSecond", val:0, rot:0});
 			particleDataArray.push({label:"Rot/Sec\nVariance", props:"rotatePerSecondVariance", val:0, rot:0});
 	
-			
 
+			
+			var objectDataHolder:Object = populateDataWithCurrentSet();
+			
+			dispatcher.setData(objectDataHolder);
+		}
+		private function clone(source:Object):* 
+		{ 
+				var myBA:ByteArray = new ByteArray(); 
+				myBA.writeObject(source); 
+				myBA.position = 0; 
+				return(myBA.readObject()); 
+		}
+		private function populateDataWithCurrentSet():Object
+		{
+			var obj:Object = new Object();
+			
+			var cloned_ParticleDataArray:Array = new Array();
+			var cloned_ColorDataArray:Array = new Array();
+			
+			cloned_ParticleDataArray = clone(particleDataArray);
+			cloned_ColorDataArray = clone(colorDataArray);
+			
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			
+			
 			var i:int = 0;
 			
-			for (i = 0; i < particleDataArray.length; i++)
+			for (i = 0; i < cloned_ParticleDataArray.length; i++)
 			{
-				particleDataArray[i].val = ps[particleDataArray[i].props];				
+				cloned_ParticleDataArray[i].val = currentParticleSystem[particleDataArray[i].props];				
 			}
 			
 			for (i = 0; i < 5; i++)
 			{
-				colorDataArray[i].x = 120;				
-				colorDataArray[i].y = 120;				
-				colorDataArray[i].a = 1;
+				cloned_ColorDataArray[i].x = 120;				
+				cloned_ColorDataArray[i].y = 120;				
+				cloned_ColorDataArray[i].a = 1;
 			}
 			
-			colorDataArray[5].blend = returnBlendInteger(ps.blendFuncSource);
-			colorDataArray[5].rot = 1.57;
-			colorDataArray[6].blend = returnBlendInteger(ps.blendFuncDestination);
-			colorDataArray[6].rot = 1.57;
-			
-			
-			var objectDataHolder:Object = new Object();
-			objectDataHolder.particleDataArray = particleDataArray;
-			objectDataHolder.colorDataArray = colorDataArray;
+			cloned_ColorDataArray[5].blend = returnBlendInteger(currentParticleSystem.blendFuncSource);
+			cloned_ColorDataArray[5].rot = 1.57;
+			cloned_ColorDataArray[6].blend = returnBlendInteger(currentParticleSystem.blendFuncDestination);
+			cloned_ColorDataArray[6].rot = 1.57;
 			
 			
 			
-			dispatcher.setData(objectDataHolder);
+			obj.particleDataArray = cloned_ParticleDataArray;
+			obj.colorDataArray = colorDataArray;
+			
+			
+			return obj;
 		}
 		private function setParam():void
 		{
 			//trace(selectedProp)
-			
-			//emitterType
-			ps[particleDataArray[selectedProp].props] = uiValue;
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			if (currentParticleSystem != null)
+			{
+				currentParticleSystem[particleDataArray[selectedProp].props] = uiValue;
+			}
 		}
 	}
 

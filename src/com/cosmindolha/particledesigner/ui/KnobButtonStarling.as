@@ -63,6 +63,7 @@ package com.cosmindolha.particledesigner.ui
 			knobSprite.alpha = 0.5;
 			
 			
+			//numberField = new TextField(180, 80, "", "fatcow", 60, Color.WHITE, true);
 			numberField = new TextField(180, 80, "", "fatcow", 60, Color.WHITE, true);
 			numberField.hAlign = HAlign.CENTER;
 			addChild(numberField);

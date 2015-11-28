@@ -10,8 +10,12 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.SetColorPickerEvent;
 	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
 	import com.cosmindolha.particledesigner.events.ChangeBlendEvent;
+	import com.cosmindolha.particledesigner.events.LayerEvents;
+	import com.cosmindolha.particledesigner.events.UpdateLayerPreviewEvent;
+	import com.cosmindolha.particledesigner.events.MoveParticleEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.geom.Point;
 	
 	/**
 	 * ...
@@ -30,6 +34,38 @@ package com.cosmindolha.particledesigner
 		private var setMenuButtonEvent:CurrentMenuButtonEvent;
 		private var changeBlendColorEvent:ChangeBlendEvent;
 		private var setBlendKnobEvent:ChangeBlendEvent;
+		private var newLayerEvent:LayerEvents;
+		private var changeLayerEvent:LayerEvents;
+		private var removeLayerEvent:LayerEvents;
+		private var updateLayerPreviewEvent:UpdateLayerPreviewEvent;
+		private var moveParticleEvent:MoveParticleEvent;
+		
+		
+		public function moveParticle(data:Point):void
+		{
+			moveParticleEvent = new MoveParticleEvent(MoveParticleEvent.ON_PARTICLE_MOVE, data);
+			dispatchEvent(moveParticleEvent);
+		}
+		public function updateLayer(data:Object):void
+		{
+			updateLayerPreviewEvent = new UpdateLayerPreviewEvent(UpdateLayerPreviewEvent.UPDATE_LAYER_PREVIEW, data);
+			dispatchEvent(updateLayerPreviewEvent);
+		}
+		public function addLayer(data:Object):void
+		{
+			newLayerEvent = new LayerEvents(LayerEvents.NEW_LAYER, data);
+			dispatchEvent(newLayerEvent);
+		}
+		public function removeLayer():void
+		{
+			removeLayerEvent = new LayerEvents(LayerEvents.REMOVE_LAYER, null);
+			dispatchEvent(removeLayerEvent);
+		}	
+		public function changeLayer(data:Object):void
+		{
+			changeLayerEvent = new LayerEvents(LayerEvents.CHANGE_LAYER, data);
+			dispatchEvent(changeLayerEvent);
+		}
 		
 		public function setBlendKnob(data:Object):void
 		{

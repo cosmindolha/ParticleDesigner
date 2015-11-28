@@ -3,8 +3,10 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.ui.Button;
 	import com.cosmindolha.particledesigner.ui.ColorButton;
 	import com.cosmindolha.particledesigner.ui.ColorPicker;
+	import com.cosmindolha.particledesigner.ui.Layers;
 	import com.cosmindolha.particledesigner.ui.RightMenuButton;
 	import com.cosmindolha.particledesigner.ui.KnobBlendColorStarling;
+	import flash.geom.Point;
 	import starling.display.DisplayObject;
 	import starling.display.Image;
 	import starling.display.Quad;
@@ -17,7 +19,11 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.ColorPickerEvent;
 	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
 	import com.cosmindolha.particledesigner.events.ChangeBlendEvent;
+	import com.cosmindolha.particledesigner.events.LayerEvents;
 	import starling.events.Event;
+	import starling.events.Touch;
+	import starling.events.TouchPhase;
+	import starling.events.TouchEvent;
 	import starling.textures.Texture;
 	
 	/**
@@ -53,18 +59,35 @@ package com.cosmindolha.particledesigner
 		private var buttonHolderEmitterRadial:Sprite;
 		private var buttonColorHolder:Sprite;
 		
+		private var uiLayers:Layers;
+		private var buttonsBuilt:Boolean;
+		
+		//private var selectedSettingsArray:Array;
+		//private var currentParticleSettingsArray:Array;
+		
 		public function UIStarlingScreen(rs:Resource, dd:DataDispatcher)
 		{
 			resources = rs;
 			dispatcher = dd;
 			
 			rightMenuArray = new Array();
+			//selectedSettingsArray = new Array();
+			//selectedSettingsArray[0] = [];
+			
+			//currentParticleSettingsArray = new Array();
 			
 			rightMenuArray.push("Particle \nConfig");
 			rightMenuArray.push("Em. Type\nGravity");
 			rightMenuArray.push("Em. Type\nRadial");
 			rightMenuArray.push("Color \nConfig");
-			rightMenuArray.push("Hide All");
+			rightMenuArray.push("Layers");
+			rightMenuArray.push("Move \nParticle");
+			
+			//layers
+			
+			uiLayers = new Layers(dispatcher, resources);
+			
+			uiLayers.x = 850;
 			
 			//controllers
 			knobBlendColorController = new KnobBlendColorStarling(dispatcher, resources);
@@ -102,6 +125,8 @@ package com.cosmindolha.particledesigner
 			uiSpriteArray.push(colorPicker);
 			uiSpriteArray.push(knobController);
 			uiSpriteArray.push(knobBlendColorController);
+			//other ui elements
+			uiSpriteArray.push(uiLayers);
 			
 			
 			dispatcher.addEventListener(CurrentButtonEvent.SELECTED_BUTTON, onButtonPressed);
@@ -118,14 +143,27 @@ package com.cosmindolha.particledesigner
 			
 			dispatcher.addEventListener(ChangeBlendEvent.SET_BLEND_COLOR, onChangeBlendEvent);
 			
+			dispatcher.addEventListener(LayerEvents.NEW_LAYER, onNewLayer);
+			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER, onLayerChange);
+		
 			
 			buildRightMenu();
 				
 			
 			addToUI();
 			
+			uiLayers.visible = true;
+			
 		}
 		
+		private function onNewLayer(e:LayerEvents):void
+		{
+			
+		}
+		private function onLayerChange(e:LayerEvents):void
+		{
+			
+		}
 		private function onChangeBlendEvent(e:ChangeBlendEvent):void
 		{
 			var obj:Object = e.customData;
@@ -145,47 +183,69 @@ package com.cosmindolha.particledesigner
 		private function showColorConfig():void
 		{
 			buttonColorHolder.visible = true;
-			
-			
-			if (buttonColorID >= 5)
-			{
-				colorPicker.visible = false;
-				knobBlendColorController.visible = true;
-			}else{
-				
-				colorPicker.visible = true;
-				knobBlendColorController.visible = false;
-			}
 		}
 		
+		private function showLayers():void
+		{
+			uiLayers.visible = true;
+		}
 		private function showRadialEmiterConfig():void
 		{
 			buttonHolderEmitterRadial.visible = true;
-			knobController.visible = true;
 		}
 		private function showGravityEmiterConfig():void
 		{
 			buttonHolderEmitterGravity.visible = true;
-			knobController.visible = true;
 		}
 		
 		private function showParticleConfig():void
 		{
 			buttonHolderConfig.visible = true;
-			knobController.visible = true;
 		}
 		
+		private function onTouch(e:TouchEvent):void
+		{
+			var moveTouch:Touch = e.getTouch(stage, TouchPhase.MOVED);
+			//var downTouch:Touch = e.getTouch(stage, TouchPhase.BEGAN);
+			//var upTouch:Touch = e.getTouch(stage, TouchPhase.ENDED);
+			if (moveTouch != null)
+			{
+				
+				var localPos:Point = moveTouch.getLocation(this);
+				dispatcher.moveParticle(localPos);
+			}
+		}
+		private function moveParticleAround():void
+		{
+			stage.addEventListener(TouchEvent.TOUCH, onTouch);
+		}
 		private function hideUI():void
 		{
 			for (var i:int = 0; i < uiSpriteArray.length; i++)
 			{
 				uiSpriteArray[i].visible = false;
 			}
+			if (buttonColorSelected != null)
+			{
+				buttonColorSelected.deselect()
+			}
+			if (buttonSelected != null)
+			{
+				buttonSelected.deselect()
+			}
+			try{
+			if (stage.hasEventListener(TouchEvent.TOUCH))
+			{
+				stage.removeEventListener(TouchEvent.TOUCH, onTouch);
+			}
+			}catch (er:Error)
+			{
+				trace("is stage null?", stage)
+			}
 		}
 		
 		private function showSelectedUI():void
 		{
-			
 			hideUI();
 			switch (currentRightMenuButtonID)
 			{
@@ -204,7 +264,12 @@ package com.cosmindolha.particledesigner
 				showColorConfig();
 				break;
 			case 4: 
-				break;
+				showLayers();
+				break;						
+			case 5: 
+				moveParticleAround();
+				showLayers();
+			break;
 				
 			}
 		}
@@ -265,7 +330,10 @@ package com.cosmindolha.particledesigner
 			particleDataArray = objectDataHolder.particleDataArray;
 			colorDataArray = objectDataHolder.colorDataArray;
 			
-			buildButtons();
+			if (buttonsBuilt == false)
+			{
+				buildButtons();
+			}
 		}
 		
 		private function setVal(e:CurrentValEvent):void
@@ -277,6 +345,8 @@ package com.cosmindolha.particledesigner
 		
 		private function onColorButtonPressed(e:CurrentColorButtonEvent):void
 		{
+
+			
 			var obj:Object = e.customData;
 			
 			if (buttonColorSelected != null)
@@ -320,6 +390,10 @@ package com.cosmindolha.particledesigner
 		
 		private function onButtonPressed(e:CurrentButtonEvent):void
 		{
+			if (knobController.visible == false)
+			{
+				knobController.visible = true;
+			}
 			var obj:Object = e.customData;
 			if (buttonSelected != null)
 			{
@@ -340,8 +414,8 @@ package com.cosmindolha.particledesigner
 		private function buildButtons():void
 		{
 			
+			buttonsBuilt = true;
 			var i:int;
-			
 			//from 0-15 particle config
 			//from 15-23 emitter type gravity
 			
