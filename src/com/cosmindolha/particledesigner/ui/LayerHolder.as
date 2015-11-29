@@ -2,6 +2,7 @@ package com.cosmindolha.particledesigner.ui
 {
 	import com.cosmindolha.particledesigner.DataDispatcher;
 	import com.cosmindolha.particledesigner.Resource;
+	import flash.geom.Point;
 	import starling.display.Canvas;
 	import starling.display.Sprite;
 	import starling.display.Image;
@@ -22,6 +23,9 @@ package com.cosmindolha.particledesigner.ui
 		private var sp:Sprite;
 		private var sendObject:Object;
 		private var layerBg:Sprite;
+		private var isThisSelected:Boolean;
+		private var particleVisible:Boolean;
+		private var eyeVisibleLayer:Image;
 
 		
 		public function LayerHolder(dd:DataDispatcher, rs:Resource, id:int) 
@@ -29,14 +33,24 @@ package com.cosmindolha.particledesigner.ui
 			dispatcher = dd;
 			resources = rs;
 			layerID = id;
-			
+			particleVisible = true;
 			sp = new Sprite();
 			
 			sp.alpha = 0.5;
 			
 			bgLayerImage = new Image(resources.assets.getTexture("layerbg"));
-			sp.addChild(bgLayerImage);
-
+			sp.addChild(bgLayerImage);		
+			
+			var bgVisibleLayerImage:Image = new Image(resources.assets.getTexture("layervisible"));
+			addChild(bgVisibleLayerImage);		
+			
+			bgVisibleLayerImage.x = -40;
+			
+			eyeVisibleLayer = new Image(resources.assets.getTexture("eyesmall"));
+			addChild(eyeVisibleLayer);
+			eyeVisibleLayer.x = -30;
+			eyeVisibleLayer.y = 35;
+			
 			addChild(sp);
 			
 			layerBg = new Sprite();
@@ -53,6 +67,7 @@ package com.cosmindolha.particledesigner.ui
 			sendObject = new Object();
 			sendObject.bt = this;
 			sendObject.id = id;
+			sendObject.particleVisible = particleVisible;
 			
 			addEventListener(TouchEvent.TOUCH, onTouch);
 		}
@@ -64,20 +79,33 @@ package com.cosmindolha.particledesigner.ui
 		{
 			
 			var downTouch:Touch = e.getTouch(stage, TouchPhase.BEGAN);
-			var upTouch:Touch = e.getTouch(stage, TouchPhase.ENDED);
+			var localPos:Point;
+				if (downTouch != null)
+				{
+					localPos = downTouch.getLocation(this);
+					if (localPos.x > 0 )
+					{
+						sp.alpha = 1;
+						if (isThisSelected == false)
+						{
+							dispatcher.changeLayer(sendObject);	
+						}
+					}
+					if (localPos.x < 0)
+					{
+						visibilityToggle();
+					}
+				}		
 			
-			if (downTouch != null)
-			{
-					sp.alpha = 1;
-					
-			}		
-			if (upTouch != null)
-			{
-					sp.alpha = 0.5;
-					dispatcher.changeLayer(sendObject);	
-			}
 		}
 		
+		private function visibilityToggle():void
+		{
+			particleVisible = !particleVisible;
+			eyeVisibleLayer.visible = particleVisible;
+			sendObject.particleVisible = particleVisible;
+			dispatcher.visibilityLayer(sendObject);	
+		}
 		
 		public function updatePreview(img:Image):void
 		{
@@ -92,11 +120,12 @@ package com.cosmindolha.particledesigner.ui
 		
 		{
 			sp.alpha = 0.5;
+			isThisSelected = false;
 		}
 		public function select():void
 		{
 			sp.alpha = 1;
-			
+			isThisSelected = true;
 		}
 	}
 

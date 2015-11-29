@@ -37,6 +37,7 @@ package com.cosmindolha.particledesigner
 		private var newLayerEvent:LayerEvents;
 		private var changeLayerEvent:LayerEvents;
 		private var removeLayerEvent:LayerEvents;
+		private var visibilityLayerEvent:LayerEvents;
 		private var updateLayerPreviewEvent:UpdateLayerPreviewEvent;
 		private var moveParticleEvent:MoveParticleEvent;
 		
@@ -46,6 +47,11 @@ package com.cosmindolha.particledesigner
 			moveParticleEvent = new MoveParticleEvent(MoveParticleEvent.ON_PARTICLE_MOVE, data);
 			dispatchEvent(moveParticleEvent);
 		}
+		public function visibilityLayer(data:Object):void
+		{
+			visibilityLayerEvent = new LayerEvents(LayerEvents.CHANGE_LAYER_VISIBILITY, data);
+			dispatchEvent(visibilityLayerEvent);
+		}	
 		public function updateLayer(data:Object):void
 		{
 			updateLayerPreviewEvent = new UpdateLayerPreviewEvent(UpdateLayerPreviewEvent.UPDATE_LAYER_PREVIEW, data);

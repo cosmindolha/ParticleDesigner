@@ -137,6 +137,7 @@ package com.cosmindolha.particledesigner.ui
 			spColorPointer.y = obj.y;
 			setColorValue = obj.color;
 			colorAlpha = obj.a;
+			trace(colorAlpha)
 			opacitySprite.rotation = obj.rot;
 			
 			setInitColor();

@@ -212,7 +212,10 @@ package com.cosmindolha.particledesigner
 			{
 				
 				var localPos:Point = moveTouch.getLocation(this);
-				dispatcher.moveParticle(localPos);
+				if (localPos.x < 940)
+				{
+					dispatcher.moveParticle(localPos);
+				}
 			}
 		}
 		private function moveParticleAround():void

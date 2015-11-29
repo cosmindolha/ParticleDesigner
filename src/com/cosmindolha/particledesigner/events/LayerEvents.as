@@ -13,6 +13,7 @@ package com.cosmindolha.particledesigner.events
 		public static const NEW_LAYER:String = "newLayer";
 		public static const REMOVE_LAYER:String = "removeLayer";
 		public static const CHANGE_LAYER:String = "changeLayer";
+		public static const CHANGE_LAYER_VISIBILITY:String = "changeLayerVisibility";
 		
 		public function LayerEvents(type:String, customData:Object, bubbles:Boolean = false, cancelable:Boolean = false):void
 		{

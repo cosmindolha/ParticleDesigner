@@ -105,6 +105,7 @@ package com.cosmindolha.particledesigner
 			dispatcher.addEventListener(LayerEvents.NEW_LAYER, onNewLayer);
 			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER, onLayerChange);
 			dispatcher.addEventListener(LayerEvents.REMOVE_LAYER, onRemoveLayer);
+			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER_VISIBILITY, onLayerVisibility);
 			
 			updateLayerPreviewTimer = new Timer(500, 1);
 			
@@ -120,6 +121,14 @@ package com.cosmindolha.particledesigner
 			spriteToMove.x = point.x;
 			spriteToMove.y = point.y;
 			}
+		}
+		private function onLayerVisibility(e:LayerEvents):void
+		{
+			var obj:Object = e.customData;
+			
+			var spriteToAffect:Sprite = particleSpriteDictionary[obj.id];
+			spriteToAffect.visible = obj.particleVisible;
+			
 		}
 		private function onRemoveLayer(e:LayerEvents):void
 		{
@@ -509,7 +518,7 @@ package com.cosmindolha.particledesigner
 			
 			
 			obj.particleDataArray = cloned_ParticleDataArray;
-			obj.colorDataArray = colorDataArray;
+			obj.colorDataArray = cloned_ColorDataArray;
 			
 			
 			return obj;
