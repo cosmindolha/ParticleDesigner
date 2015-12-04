@@ -106,6 +106,7 @@ package com.cosmindolha.particledesigner
 			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER, onLayerChange);
 			dispatcher.addEventListener(LayerEvents.REMOVE_LAYER, onRemoveLayer);
 			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER_VISIBILITY, onLayerVisibility);
+			dispatcher.addEventListener(LayerEvents.CHANGE_INDEX, onLayerIndexChange);
 			
 			updateLayerPreviewTimer = new Timer(500, 1);
 			
@@ -121,6 +122,16 @@ package com.cosmindolha.particledesigner
 			spriteToMove.x = point.x;
 			spriteToMove.y = point.y;
 			}
+		}
+		private function onLayerIndexChange(e:LayerEvents):void
+		{
+			var obj:Object = e.customData;
+			
+			var spriteToAffect:Sprite = particleSpriteDictionary[obj.id];
+			var spriteMoved:Sprite = particleSpriteDictionary[obj.movedLayerID];
+			var spriteMovedIndex:int = particleHolder.getChildIndex(spriteMoved);
+			
+			particleHolder.setChildIndex(spriteToAffect, spriteMovedIndex);
 		}
 		private function onLayerVisibility(e:LayerEvents):void
 		{
@@ -139,7 +150,7 @@ package com.cosmindolha.particledesigner
 			
 			currentParticleSystem.dispose();
 			spriteToDelete.removeChild(currentParticleSystem);
-			removeChild(currentParticleSystem);
+			particleHolder.removeChild(spriteToDelete);
 			
 			delete particleSpriteDictionary[currentParticleSystemID];
 			delete particleDictionary[currentParticleSystemID];

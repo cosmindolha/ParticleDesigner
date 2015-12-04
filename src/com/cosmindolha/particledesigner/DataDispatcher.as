@@ -38,6 +38,10 @@ package com.cosmindolha.particledesigner
 		private var changeLayerEvent:LayerEvents;
 		private var removeLayerEvent:LayerEvents;
 		private var visibilityLayerEvent:LayerEvents;
+
+		private var startDragLayerEvent:LayerEvents;
+		private var changeLayerIndexEvent:LayerEvents;
+		
 		private var updateLayerPreviewEvent:UpdateLayerPreviewEvent;
 		private var moveParticleEvent:MoveParticleEvent;
 		
@@ -46,6 +50,19 @@ package com.cosmindolha.particledesigner
 		{
 			moveParticleEvent = new MoveParticleEvent(MoveParticleEvent.ON_PARTICLE_MOVE, data);
 			dispatchEvent(moveParticleEvent);
+		}
+
+		
+		public function setLayerIndex(data:Object):void
+		{
+			changeLayerIndexEvent = new LayerEvents(LayerEvents.CHANGE_INDEX, data);
+			dispatchEvent(changeLayerIndexEvent);
+		}		
+		
+		public function dragLayer(data:Object):void
+		{
+			startDragLayerEvent = new LayerEvents(LayerEvents.START_DRAG_LAYER, data);
+			dispatchEvent(startDragLayerEvent);
 		}
 		public function visibilityLayer(data:Object):void
 		{

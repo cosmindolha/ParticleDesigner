@@ -14,6 +14,9 @@ package com.cosmindolha.particledesigner.events
 		public static const REMOVE_LAYER:String = "removeLayer";
 		public static const CHANGE_LAYER:String = "changeLayer";
 		public static const CHANGE_LAYER_VISIBILITY:String = "changeLayerVisibility";
+
+		public static const START_DRAG_LAYER:String = "startDragLayer";
+		public static const CHANGE_INDEX:String = "changeIndex";
 		
 		public function LayerEvents(type:String, customData:Object, bubbles:Boolean = false, cancelable:Boolean = false):void
 		{
