@@ -132,6 +132,8 @@ package com.cosmindolha.particledesigner
 			var spriteMovedIndex:int = particleHolder.getChildIndex(spriteMoved);
 			
 			particleHolder.setChildIndex(spriteToAffect, spriteMovedIndex);
+			
+			
 		}
 		private function onLayerVisibility(e:LayerEvents):void
 		{

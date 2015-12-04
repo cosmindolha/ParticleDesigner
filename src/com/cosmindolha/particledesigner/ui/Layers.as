@@ -203,6 +203,11 @@ package com.cosmindolha.particledesigner.ui
 				{
 					if (onReleaseSelectedY != -1)
 					{
+						
+					var changes:Boolean = (selectedLayerToDrag.pozy != onReleaseSelectedY);
+					
+					//trace("nothing changed")
+						
 					selectedLayerToDrag.pozy = onReleaseSelectedY;
 					selectedLayerToDrag.y = onReleaseSelectedY;
 					onReleaseSelectedY = -1;
@@ -210,9 +215,12 @@ package com.cosmindolha.particledesigner.ui
 					var obj:Object = new Object();
 					obj.id = selectedLayerToDrag.id;
 					obj.movedLayerID = movedLayerID;
+										
 					
+					if (changes)
+					{
 					dispatcher.setLayerIndex(obj);
-					
+					}
 					}else{
 						
 						selectedLayerToDrag.y = selectedLayerToDrag.pozy;
