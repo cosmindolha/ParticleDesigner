@@ -5,9 +5,11 @@ package com.cosmindolha.particledesigner
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
+	import flash.geom.Rectangle;
 	import flash.ui.Multitouch;
 	import flash.ui.MultitouchInputMode;
 	import starling.core.Starling;
+
 	
 	
 		
@@ -21,10 +23,12 @@ package com.cosmindolha.particledesigner
 		
 		public function Main() 
 		{
-			stage.scaleMode = StageScaleMode.NO_SCALE;
+			
 			stage.align = StageAlign.TOP_LEFT;
+			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.addEventListener(Event.DEACTIVATE, deactivate);
 			
+			stage.addEventListener(Event.RESIZE, resizeStage);
 			// touch or gesture?
 			Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
 			
@@ -37,20 +41,20 @@ package com.cosmindolha.particledesigner
 			//starlingPartDesigner.showStatsAt( "left", "bottom", 2);
 			
 			
-			
-			// Entry point
-			// New to AIR? Please read *carefully* the readme.txt files!
-			
-			//var uiControlls:UIScreen = new UIScreen();
-			
-			//addChild(uiControlls);
-			
 		}
 		
+		protected function resizeStage(event:Event):void
+		{
+			var viewPortRectangle:Rectangle = new Rectangle();
+			viewPortRectangle.width = stage.stageWidth;
+			viewPortRectangle.height = stage.stageHeight;
+			Starling.current.viewPort = viewPortRectangle;
+ 
+		}
 		private function deactivate(e:Event):void 
 		{
 			// make sure the app behaves well (or exits) when in background
-			//NativeApplication.nativeApplication.exit();
+			NativeApplication.nativeApplication.exit();
 		}
 		
 	}

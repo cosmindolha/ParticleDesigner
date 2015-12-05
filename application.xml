@@ -38,10 +38,9 @@
     <renderMode>direct</renderMode>
     <depthAndStencil>true</depthAndStencil>
     <!-- required for 3D -->
-    <systemChrome>standard</systemChrome>
+    <systemChrome>none</systemChrome>
     <requestedDisplayResolution>high</requestedDisplayResolution>
     <resizable>false</resizable>
-    <maximizable>true</maximizable>
     <aspectRatio>landscape</aspectRatio>
     <autoOrients>false</autoOrients>
   </initialWindow>

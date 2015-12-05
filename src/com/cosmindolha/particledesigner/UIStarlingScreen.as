@@ -87,26 +87,23 @@ package com.cosmindolha.particledesigner
 			
 			uiLayers = new Layers(dispatcher, resources);
 			
-			uiLayers.x = 850;
+
 			
 			//controllers
 			knobBlendColorController = new KnobBlendColorStarling(dispatcher, resources);
 			
-			knobBlendColorController.x = 850;
-			knobBlendColorController.y = 600;	
+
 			
 			//addChild(knobBlendColorController);
 			
 			knobController = new KnobButtonStarling(dispatcher, resources);
 			
-			knobController.x = 850;
-			knobController.y = 600;
+
 			
 			colorPicker = new ColorPicker(dispatcher, resources);
 			
 			
-			colorPicker.x = 700;
-			colorPicker.y = 450;
+
 			
 			//sprites
 			
@@ -128,6 +125,7 @@ package com.cosmindolha.particledesigner
 			//other ui elements
 			uiSpriteArray.push(uiLayers);
 			
+			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			
 			dispatcher.addEventListener(CurrentButtonEvent.SELECTED_BUTTON, onButtonPressed);
 			
@@ -147,15 +145,32 @@ package com.cosmindolha.particledesigner
 			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER, onLayerChange);
 		
 			
-			buildRightMenu();
+			
 				
 			
-			addToUI();
+			
 			
 			uiLayers.visible = true;
 			
 		}
-		
+		private function onAddedToStage(e:Event):void
+		{
+
+			uiLayers.x = stage.stageWidth - 174;
+			
+			knobBlendColorController.x = stage.stageWidth - 174;
+			knobBlendColorController.y = stage.stageHeight - 168;	
+			
+			knobController.x = stage.stageWidth - 174;
+			knobController.y = stage.stageHeight - 168;
+			
+			colorPicker.x = stage.stageWidth - 320;
+			colorPicker.y = stage.stageHeight - 320;
+			
+			buildRightMenu();
+			
+			addToUI();
+		}
 		private function onNewLayer(e:LayerEvents):void
 		{
 			
@@ -298,7 +313,7 @@ package com.cosmindolha.particledesigner
 		{
 			hideUI();
 						
-			var toX:int = 960;
+			var toX:int = stage.stageWidth - 58;
 			var toY:int = 50;
 			
 			for (var i:int = 0; i < rightMenuArray.length; i++)

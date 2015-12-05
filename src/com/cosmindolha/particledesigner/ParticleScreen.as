@@ -4,6 +4,7 @@ package com.cosmindolha.particledesigner
 	import de.flintfabrik.starling.utils.ColorArgb;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
@@ -17,6 +18,7 @@ package com.cosmindolha.particledesigner
 	import starling.textures.Texture;
 	import starling.core.Starling;
 	import starling.textures.TextureAtlas;
+	import starling.events.ResizeEvent;
 		
 	import de.flintfabrik.starling.display.FFParticleSystem;
 	import de.flintfabrik.starling.display.FFParticleSystem.SystemOptions;
@@ -69,7 +71,7 @@ package com.cosmindolha.particledesigner
 		public function ParticleScreen() 
 		{
 			
-			bgQuad = new Quad(1024, 768, 0x65496a);
+			bgQuad = new Quad(768, 1024, 0x65496a);
 			addChild(bgQuad);
 			
 			particleHolder = new Sprite();
@@ -88,6 +90,9 @@ package com.cosmindolha.particledesigner
 			resources = new Resource(dispatcher);
 			
 			resources.assets.verbose = false;
+			
+	
+			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			
 			dispatcher.addEventListener("ASSETS_LOADED", onAssetsReady);
 			dispatcher.addEventListener(CurrentButtonEvent.SELECTED_BUTTON, onButtonPressed);
@@ -112,6 +117,13 @@ package com.cosmindolha.particledesigner
 			
 			updateLayerPreviewTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onUpdateTimer);
 			updateLayerPreviewTimer.start();
+		}
+
+		private function onAddedToStage(e:Event):void
+		{
+
+				bgQuad.width = stage.stageWidth;
+				bgQuad.height = stage.stageHeight;
 		}
 		private function moveParticleAround(e:MoveParticleEvent):void
 		{
