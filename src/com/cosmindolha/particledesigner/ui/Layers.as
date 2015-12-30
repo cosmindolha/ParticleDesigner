@@ -86,7 +86,6 @@ package com.cosmindolha.particledesigner.ui
 			layerPosX = 0;
 			prevVal = -1;
 			layerPosY = upperLimitY;
-
 			
 			buildLayer(uniqueLayerID);
 			
@@ -140,15 +139,12 @@ package com.cosmindolha.particledesigner.ui
 				}						
 				if (layerToMove != null && prevVal != -1)
 				{
-
 				
 					if (layerToMove.locked == false)
 					{
 						onReleaseSelectedY = layerToMove.pozy;
 						
 						var newY:Number =  (prevVal > selectedLayerToDrag.y) ?  layerToMove.pozy + spacerY : layerToMove.pozy - spacerY;
-
-
 						movedLayerID = layerToMove.id;
 						layerToMove.pozy = newY;
 						layerToMove.locked = true;
@@ -166,9 +162,7 @@ package com.cosmindolha.particledesigner.ui
 		}
 		private function onTouch(e:TouchEvent):void
 		{
-
 				var moveTouch:Touch = e.getTouch(stage, TouchPhase.MOVED);
-
 				
 				if (selectedLayerToDrag != null)
 				{
@@ -183,7 +177,6 @@ package com.cosmindolha.particledesigner.ui
 					}
 				}
 			
-
 			
 			var upTouch:Touch = e.getTouch(stage, TouchPhase.ENDED);
 			if (upTouch != null)
@@ -192,9 +185,8 @@ package com.cosmindolha.particledesigner.ui
 				prevVal = -1;
 				swapLayersTimer.stop();
 				dragLayerTimer.stop();
-
+				
 				var dalayer:Delay = new Delay(sety, 150);
-
 				
 			}
 			function sety():void
@@ -215,7 +207,7 @@ package com.cosmindolha.particledesigner.ui
 					var obj:Object = new Object();
 					obj.id = selectedLayerToDrag.id;
 					obj.movedLayerID = movedLayerID;
-										
+					
 					
 					if (changes)
 					{
@@ -248,13 +240,10 @@ package com.cosmindolha.particledesigner.ui
 			
 			selectedLayerTween = new GTween(selectedLayerToDrag, .1);
 			
-			
-			
 			swapLayersTimer.start();
 			dragLayerTimer.start();
 			
 		}
-
 		private function onLayerChange(e:LayerEvents):void
 		{
 			selectLayer(e.customData.bt);
@@ -263,15 +252,13 @@ package com.cosmindolha.particledesigner.ui
 		{
 			if (currentLayer != null)
 			{
-				currentLayer.deselect();
-				
+				currentLayer.deselect();	
 			}
 			layerHolder.select();
 			currentLayerID = layerHolder.id;
 			currentLayer = layerHolder;	
 			
-			selectY = layerHolder.y;
-			
+			selectY = layerHolder.y;	
 		}
 		private function buildLayer(id:int):void
 		{
@@ -296,20 +283,16 @@ package com.cosmindolha.particledesigner.ui
 				newLayer.y = 50;
 			}		
 			selectLayer(newLayer);	
-			
-			
+				
 		}
 		private function updateDictionary():void
 		{
-			
 			
 			for each(var layerHD:LayerHolder in layersArray)
 			{			
 				layerDictionary[layerHD.id] = layerHD.y;
 				layerHD.pozy =  layerHD.y;
 			}
-			
-
 			
 		}
 		private function pushLayersDownFrom(lh:LayerHolder):void
@@ -323,7 +306,6 @@ package com.cosmindolha.particledesigner.ui
 					
 					var toY:Number = layerHD.y + spacerY;
 					var down:GTween = new GTween(layerHD, .1, {y: toY}, {onComplete:done});
-			
 				}
 			}
 			function done():void
@@ -371,9 +353,38 @@ package com.cosmindolha.particledesigner.ui
 					break;
 				}
 			}
-				dispatcher.removeLayer();
-				
+				dispatcher.removeLayer();	
 			}
+			
+			
+			var delayerTopSelection:Delay = new Delay(selectTopLayer, 200);
+			
+		}
+		private function selectTopLayer():void
+		{
+			
+			var lhd:LayerHolder = getTopLayer();
+			
+			if (lhd != null)
+			{
+				selectLayer(lhd);
+				dispatcher.changeLayer(lhd.obj);	
+			}
+		}
+		private function getTopLayer():LayerHolder
+		{
+			var topLayer:LayerHolder;
+			
+			for each (var layerHD:LayerHolder in layersArray)
+				{
+					if (layerHD.y == 50)
+					{
+						topLayer = layerHD;
+						break;
+						
+					}
+				}
+			return topLayer;
 		}
 	}
 

@@ -13,6 +13,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.LayerEvents;
 	import com.cosmindolha.particledesigner.events.UpdateLayerPreviewEvent;
 	import com.cosmindolha.particledesigner.events.MoveParticleEvent;
+	import com.cosmindolha.particledesigner.events.TextureEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
@@ -44,7 +45,22 @@ package com.cosmindolha.particledesigner
 		
 		private var updateLayerPreviewEvent:UpdateLayerPreviewEvent;
 		private var moveParticleEvent:MoveParticleEvent;
+		private var openTextureGallerEvent:TextureEvent;
+		private var texturePickedEvent:TextureEvent;
 		
+		public function texturePicked(data:Object):void
+		{
+			texturePickedEvent = new TextureEvent(TextureEvent.TEXTURE_PICKED, data);
+			dispatchEvent(texturePickedEvent);
+			
+		}	
+		
+		public function openTexturePicker():void
+		{
+			openTextureGallerEvent = new TextureEvent(TextureEvent.OPEN_GALLERY, null);
+			dispatchEvent(openTextureGallerEvent);
+			
+		}
 		
 		public function moveParticle(data:Point):void
 		{

@@ -4,7 +4,7 @@ cd %~dp0 & cd ..
 :user_configuration
 
 :: Static path to Flex SDK
-set FLEX_SDK=C:\Users\workstationMobile\AppData\Local\FlashDevelop\Apps\ascsdk\19.0.0
+set FLEX_SDK=C:\Users\workstationMobile\AppData\Local\FlashDevelop\Apps\ascsdk\20.0.0
 
 :: Use FD supplied SDK path if executed from FD
 if exist "%FD_CUR_SDK%" set FLEX_SDK=%FD_CUR_SDK%

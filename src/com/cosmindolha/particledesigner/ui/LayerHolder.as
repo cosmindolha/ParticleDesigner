@@ -1,22 +1,20 @@
 package com.cosmindolha.particledesigner.ui 
 {
-	import com.cosmindolha.particledesigner.DataDispatcher;
-	import com.cosmindolha.particledesigner.Resource;
-	import flash.display3D.textures.VideoTexture;
-	import flash.events.TimerEvent;
-	import flash.geom.Point;
-	import flash.utils.Timer;
-	import starling.display.Canvas;
-	import starling.display.Sprite;
-	import starling.display.Image;
-	import starling.events.Touch;
-	import starling.events.TouchEvent;
-	import starling.events.TouchPhase;
-	import starling.textures.RenderTexture;
 	/**
 	 * ...
 	 * @author cosmin dolha
 	 */
+	import com.cosmindolha.particledesigner.DataDispatcher;
+	import com.cosmindolha.particledesigner.Resource;
+	import flash.events.TimerEvent;
+	import flash.geom.Point;
+	import flash.utils.Timer;
+	import starling.display.Canvas;
+	import starling.display.Image;
+	import starling.display.Sprite;
+	import starling.events.Touch;
+	import starling.events.TouchEvent;
+	import starling.events.TouchPhase;
 	public class LayerHolder extends Sprite
 	{
 		private var dispatcher:DataDispatcher;
@@ -95,6 +93,10 @@ package com.cosmindolha.particledesigner.ui
 			dispatcher.dragLayer(sendObject);
 		}
 	
+		public function get obj():Object
+		{
+			return sendObject;
+		}
 		public function get id():int
 		{
 			return layerID;

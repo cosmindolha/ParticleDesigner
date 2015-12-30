@@ -17,6 +17,7 @@ package com.cosmindolha.particledesigner.ui
 	import starling.events.TouchPhase;
 	import starling.utils.*;
 	import starling.text.TextField;
+//	import starling.text.TextFormat;
 		
 	/**
 	 * ...
@@ -66,6 +67,14 @@ package com.cosmindolha.particledesigner.ui
 			//numberField = new TextField(180, 80, "", "fatcow", 60, Color.WHITE, true);
 			numberField = new TextField(180, 80, "", "fatcow", 60, Color.WHITE, true);
 			numberField.hAlign = HAlign.CENTER;
+			
+			//starling 2
+		//	var format:TextFormat = new TextFormat("fatcow", 60, Color.WHITE, "left");
+			
+		//	numberField = new TextField(100, 80, "", format);
+				//starling 2
+			
+			//
 			addChild(numberField);
 			
 			numberField.y = -10;
@@ -77,6 +86,16 @@ package com.cosmindolha.particledesigner.ui
 			
 			labelField = new TextField(240, 80, "", "fatcow", 30, Color.WHITE, true);
 			labelField.hAlign = HAlign.CENTER;
+			
+			
+			//starling 2
+			//var format2:TextFormat = new TextFormat("fatcow", 30, Color.WHITE, "left");
+			
+			//labelField = new TextField(240, 80, "", format2);
+				//starling 2
+			
+			//
+			
 			addChild(labelField);
 			
 			labelField.y = -80;

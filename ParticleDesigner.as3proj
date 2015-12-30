@@ -12,6 +12,7 @@
     <movie minorVersion="0" />
     <movie platform="AIR Mobile" />
     <movie background="#000000" />
+    <movie preferredSDK="AIR 20.0.0;20.0.0;" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
@@ -42,7 +43,7 @@
     <option linkReport="" />
     <option loadExterns="" />
     <option staticLinkRSL="True" />
-    <option additional="" />
+    <option additional="-swf-version=31" />
     <option compilerConstants="" />
     <option minorVersion="" />
   </build>

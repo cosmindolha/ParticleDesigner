@@ -1,6 +1,7 @@
 package com.cosmindolha.particledesigner 
 {
 	import com.cosmindolha.particledesigner.events.CurrentValEvent;
+	import com.utils.Delay;
 	import de.flintfabrik.starling.utils.ColorArgb;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
@@ -9,10 +10,12 @@ package com.cosmindolha.particledesigner
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
 	import starling.display.Canvas;
+	import starling.display.DisplayObject;
 	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
+	import starling.filters.BlurFilter;
 	import starling.textures.RenderTexture;
 
 	import starling.textures.Texture;
@@ -30,6 +33,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
 	import com.cosmindolha.particledesigner.events.LayerEvents;
 	import com.cosmindolha.particledesigner.events.MoveParticleEvent;
+	import com.cosmindolha.particledesigner.events.TextureEvent;
 	import flash.display3D.Context3DBlendFactor;
 		
 	/**
@@ -66,6 +70,10 @@ package com.cosmindolha.particledesigner
 		private var particleSpriteDictionary:Dictionary;
 		
 		private var particleDictionary:Dictionary;
+		private var ui:UIStarlingScreen;
+		private var disableScreenSprite:Sprite;
+		private var bubbleConfig:XML;
+		private var textureArray:Array;
 	
 		
 		public function ParticleScreen() 
@@ -73,6 +81,10 @@ package com.cosmindolha.particledesigner
 			
 			bgQuad = new Quad(768, 1024, 0x65496a);
 			addChild(bgQuad);
+			
+			disableScreenSprite = new Sprite();
+			addChild(disableScreenSprite);
+			
 			
 			particleHolder = new Sprite();
 			addChild(particleHolder);
@@ -113,17 +125,129 @@ package com.cosmindolha.particledesigner
 			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER_VISIBILITY, onLayerVisibility);
 			dispatcher.addEventListener(LayerEvents.CHANGE_INDEX, onLayerIndexChange);
 			
+			dispatcher.addEventListener(TextureEvent.OPEN_GALLERY, onOpenTextureGallery);
+			dispatcher.addEventListener(TextureEvent.TEXTURE_PICKED, obChangePartTexture);
+			
+			
 			updateLayerPreviewTimer = new Timer(500, 1);
 			
 			updateLayerPreviewTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onUpdateTimer);
 			updateLayerPreviewTimer.start();
+			
+			textureArray = new Array();
+			textureArray.push("txt1");
+			textureArray.push("txt2");
+			textureArray.push("txt3");
+			textureArray.push("txt4");
+			textureArray.push("txt5");
+			textureArray.push("txt6");
 		}
 
+		private function obChangePartTexture(e:TextureEvent):void
+		{
+			var obj:Object = e.customData;
+			
+			var ps:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			
+			//var sysOption:SystemOptions = ps.exportSystemOptions(sysOption);
+			var newTexture:Texture = resources.assets.getTexture(obj.texture);
+			
+			var tempSysOpt:SystemOptions = ps.exportSystemOptions();
+			var xmlOptions:XML = tempSysOpt.exportConfig();
+			
+			var sysOption:SystemOptions = SystemOptions.fromXML(xmlOptions, newTexture);
+
+			
+			var spriteHolder:Sprite = particleSpriteDictionary[currentParticleSystemID];
+			
+			
+			ps.reset();
+			ps.dispose();
+			
+			
+			var newPs:FFParticleSystem = new FFParticleSystem(sysOption);
+			newPs.emitterX = 0;
+			newPs.emitterY = 0;
+			
+			particleDictionary[currentParticleSystemID] = newPs;
+			
+			newPs.x = ps.x ;
+			newPs.y = ps.y ;
+			
+			spriteHolder.removeChild(ps);
+			
+			spriteHolder.addChild(newPs);
+			
+			newPs.start();
+			
+			disableScreenSprite.visible = false;
+			
+			resumeParticles();
+			
+		}
+		private function onOpenTextureGallery(e:TextureEvent):void
+		{
+			disableScreen();
+		}
+		private function disableScreen():void
+		{
+			
+		//starling 1.7
+		//var texture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .5, "bgra", false);
+		
+		//start starling 2
+		var texture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .5, "bgra");
+		//end starling 2
+		
+			var drawSprite:DisplayObject = root;
+			
+			var bf:BlurFilter = new BlurFilter(4, 4, 1);
+			drawSprite.filter = bf;
+			
+			texture.draw(drawSprite);
+			
+			disableScreenSprite.visible = true;
+			disableScreenSprite.removeChildren();
+			
+			
+			var screenImage:Image = new Image(texture);
+			disableScreenSprite.addChild(screenImage);
+			
+			setChildIndex(disableScreenSprite, numChildren - 1);
+			setChildIndex(ui, numChildren - 1);
+			pauseParticles();
+			
+			var delay:Delay = new Delay(removeFilters, 5);
+		}
+
+		private function removeFilters():void
+		{
+			var drawSprite:DisplayObject = root;
+			drawSprite.filter.dispose();
+			drawSprite.filter = null;
+		}
+		private function resumeParticles():void
+		{
+			for each (var ps:FFParticleSystem in particleDictionary)
+			{
+				ps.resume();
+			}
+		}	
+		
+		private function pauseParticles():void
+		{
+			for each (var ps:FFParticleSystem in particleDictionary)
+			{
+				ps.pause();
+			}
+		}
 		private function onAddedToStage(e:Event):void
 		{
 
 				bgQuad.width = stage.stageWidth;
 				bgQuad.height = stage.stageHeight;
+				
+				disableScreenSprite.visible = false;
 		}
 		private function moveParticleAround(e:MoveParticleEvent):void
 		{
@@ -178,8 +302,11 @@ package com.cosmindolha.particledesigner
 		private function updateLayerPreview(id:int):void
 		{
 				
-			var texture:RenderTexture = new RenderTexture(1024, 768, false, .05, "bgra", false);
-			
+			//var texture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .05, "bgra", false);
+			//starling 2
+			var texture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .05, "bgra");
+			//starling 2
+				
 			var spriteToCapture:Sprite = particleSpriteDictionary[currentParticleSystemID];
 			
 			if (spriteToCapture != null)
@@ -223,10 +350,10 @@ package com.cosmindolha.particledesigner
 			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
 			switch(id)
 			{
-			case 1:
+			case 2:
 				currentParticleSystem.emitterType = 0;
 				break;
-			case 2:
+			case 3:
 				currentParticleSystem.emitterType = 1;
 				break;
 			}	
@@ -386,8 +513,19 @@ package com.cosmindolha.particledesigner
 			
 			particleSpriteDictionary[currentParticleSystemID] = newParticleSprite;
 			
+			
+			var rndTexture:Texture = resources.assets.getTexture(textureArray[rnd(0, textureArray.length-1)]);
+			
+			
+			var xmlOptions:XML = sysOpt.exportConfig();
+			
+			sysOpt = SystemOptions.fromXML(xmlOptions, rndTexture);
+
+			
+			
 			var newParticleSys:FFParticleSystem = new FFParticleSystem(sysOpt);
 			
+
 			newParticleSys.emitterX = 0;
 			newParticleSys.emitterY = 0;
 					
@@ -404,16 +542,18 @@ package com.cosmindolha.particledesigner
 		private function init():void
 		{
 			
-			var bubbleConfig:XML =  new XML(resources.assets.getXml("story"));
-			var bubbleTexture:Texture = resources.assets.getTexture("blurb");
+			bubbleConfig =  new XML(resources.assets.getXml("story"));
+			var bubbleTexture:Texture = resources.assets.getTexture("txt6");
 			
+			//var rndTexture:Texture = resources.assets.getTexture(textureArray[rnd(0, textureArray.length-1)]);
+		
 			sysOpt = SystemOptions.fromXML(bubbleConfig, bubbleTexture);
 			
 			FFParticleSystem.init(1024, false, 512, 4);
 			
 			newParticleSystem(0);
 			
-			var ui:UIStarlingScreen = new UIStarlingScreen(resources, dispatcher);
+			ui = new UIStarlingScreen(resources, dispatcher);
 			addChild(ui);	
 			
 			dispatcher.addEventListener(CurrentValEvent.UI_VALUE, setVal);
@@ -556,6 +696,12 @@ package com.cosmindolha.particledesigner
 			{
 				currentParticleSystem[particleDataArray[selectedProp].props] = uiValue;
 			}
+		}
+		private function rnd(min:Number, max:Number):Number
+		{
+			//creates a random number between a range of numbers (ex, 0,9)
+			var randomNum:Number = Math.floor(Math.random()*(max-min+1))+min;
+			return randomNum;
 		}
 	}
 

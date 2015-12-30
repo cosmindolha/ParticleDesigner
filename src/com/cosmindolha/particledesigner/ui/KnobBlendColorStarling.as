@@ -10,6 +10,8 @@ package com.cosmindolha.particledesigner.ui
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
 	import starling.text.TextField;
+//	import starling.text.TextFormat;
+		
 	import starling.utils.*;
 	import flash.display3D.Context3DBlendFactor;
 		
@@ -51,6 +53,15 @@ package com.cosmindolha.particledesigner.ui
 			
 			labelField = new TextField(240, 80, "", "fatcow", 30, Color.WHITE, true);
 			labelField.hAlign = HAlign.CENTER;
+			
+			//starling 2
+			//var format:TextFormat = new TextFormat("fatcow", 30, Color.WHITE, "left");
+			
+			//labelField = new TextField(240, 80, "", format);
+				//starling 2
+			
+			//
+			
 			addChild(labelField);
 			
 			labelField.y = -45;

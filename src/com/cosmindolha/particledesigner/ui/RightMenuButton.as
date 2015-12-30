@@ -3,6 +3,7 @@ package com.cosmindolha.particledesigner.ui
 	import starling.display.Sprite;
 	import starling.events.Event;
 	import starling.text.TextField;
+//	import starling.text.TextFormat;
 	import starling.text.TextFieldAutoSize;
 	import starling.utils.*;
 	import flash.display.BitmapData;
@@ -34,6 +35,16 @@ package com.cosmindolha.particledesigner.ui
 			sp.alpha = .3;
 			labelField = new TextField(100, 40, "", "abel", 14, Color.WHITE, true);
 			labelField.hAlign = HAlign.CENTER;
+			
+						
+			//starling 2
+			//var format:TextFormat = new TextFormat("abel", 14, Color.WHITE, "left");
+			
+			//labelField = new TextField(100, 40, "", format);
+				//starling 2
+			
+			//
+			
 			labelField.autoSize = TextFieldAutoSize.HORIZONTAL;
 			addChild(labelField);			
 			labelField.text = label;
@@ -83,14 +94,15 @@ package com.cosmindolha.particledesigner.ui
 			
 			
 			sp.addChild(img);
-		
+				
+	
 		}
 
 		private function buttonBitmap():Texture
 		{
 			var sp:flash.display.Sprite = new flash.display.Sprite();
 			sp.graphics.beginFill(0xad02c8, .4);
-			sp.graphics.drawRoundRect(0, 0,  60, 45, 5, 5);
+			sp.graphics.drawRoundRect(0, 0,  70, 45, 5, 5);
 			sp.graphics.endFill();
 			
 			var bmpData:BitmapData = new BitmapData(sp.width, sp.height, true, 0x00000000);

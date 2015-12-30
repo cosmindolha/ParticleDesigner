@@ -32,13 +32,15 @@ package com.cosmindolha.particledesigner
 			// touch or gesture?
 			Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
 			
+
 			Starling.handleLostContext = true;
-			
+				
+				
 			starlingPartDesigner = new Starling(ParticleScreen, stage);
 			starlingPartDesigner.start();
 			
 			
-			//starlingPartDesigner.showStatsAt( "left", "bottom", 2);
+			starlingPartDesigner.showStatsAt( "left", "bottom", 2);
 			
 			
 		}

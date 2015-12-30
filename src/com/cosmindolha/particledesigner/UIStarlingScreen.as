@@ -6,6 +6,8 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.ui.Layers;
 	import com.cosmindolha.particledesigner.ui.RightMenuButton;
 	import com.cosmindolha.particledesigner.ui.KnobBlendColorStarling;
+	import com.cosmindolha.particledesigner.ui.TexturePicker;
+	import com.utils.Delay;
 	import flash.geom.Point;
 	import starling.display.DisplayObject;
 	import starling.display.Image;
@@ -20,6 +22,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.CurrentMenuButtonEvent;
 	import com.cosmindolha.particledesigner.events.ChangeBlendEvent;
 	import com.cosmindolha.particledesigner.events.LayerEvents;
+	import com.cosmindolha.particledesigner.events.TextureEvent;
 	import starling.events.Event;
 	import starling.events.Touch;
 	import starling.events.TouchPhase;
@@ -61,6 +64,9 @@ package com.cosmindolha.particledesigner
 		
 		private var uiLayers:Layers;
 		private var buttonsBuilt:Boolean;
+		private var texturePicker:TexturePicker;
+		private var showUI:Boolean = true;
+		private var rightButtonsArray:Array;
 		
 		//private var selectedSettingsArray:Array;
 		//private var currentParticleSettingsArray:Array;
@@ -76,6 +82,7 @@ package com.cosmindolha.particledesigner
 			
 			//currentParticleSettingsArray = new Array();
 			
+			rightMenuArray.push("Particle \nTexture");
 			rightMenuArray.push("Particle \nConfig");
 			rightMenuArray.push("Em. Type\nGravity");
 			rightMenuArray.push("Em. Type\nRadial");
@@ -87,7 +94,11 @@ package com.cosmindolha.particledesigner
 			
 			uiLayers = new Layers(dispatcher, resources);
 			
-
+			
+			//texture gallery
+			
+			texturePicker = new TexturePicker(dispatcher, resources);
+			
 			
 			//controllers
 			knobBlendColorController = new KnobBlendColorStarling(dispatcher, resources);
@@ -124,6 +135,9 @@ package com.cosmindolha.particledesigner
 			uiSpriteArray.push(knobBlendColorController);
 			//other ui elements
 			uiSpriteArray.push(uiLayers);
+			uiSpriteArray.push(texturePicker);
+			
+			
 			
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			
@@ -143,7 +157,8 @@ package com.cosmindolha.particledesigner
 			
 			dispatcher.addEventListener(LayerEvents.NEW_LAYER, onNewLayer);
 			dispatcher.addEventListener(LayerEvents.CHANGE_LAYER, onLayerChange);
-		
+			
+			dispatcher.addEventListener(TextureEvent.TEXTURE_PICKED, onChangePartTexture);
 			
 			
 				
@@ -153,9 +168,16 @@ package com.cosmindolha.particledesigner
 			uiLayers.visible = true;
 			
 		}
+		private function onChangePartTexture(e:TextureEvent):void
+		{
+			texturePicker.visible = false;
+		}
 		private function onAddedToStage(e:Event):void
 		{
+			var scaleF:Number = 1;
+			
 
+			
 			uiLayers.x = stage.stageWidth - 174;
 			
 			knobBlendColorController.x = stage.stageWidth - 174;
@@ -166,6 +188,23 @@ package com.cosmindolha.particledesigner
 			
 			colorPicker.x = stage.stageWidth - 320;
 			colorPicker.y = stage.stageHeight - 320;
+			
+			colorPicker.scaleX = scaleF;
+			colorPicker.scaleY = scaleF;		
+			
+			knobController.scaleX = scaleF;
+			knobController.scaleY = scaleF;	
+			
+			knobBlendColorController.scaleX = scaleF;
+			knobBlendColorController.scaleY = scaleF;
+			
+			if (stage.stageWidth <= 480);
+			{
+				scaleF = 0.6;
+				
+				//buttonHolderConfig.scaleX = 0.6;
+				//buttonHolderConfig.scaleY = 0.6;
+			}
 			
 			buildRightMenu();
 			
@@ -261,7 +300,13 @@ package com.cosmindolha.particledesigner
 				trace("is stage null?", stage)
 			}
 		}
-		
+
+		private function showTexturePicker():void
+		{
+			
+			dispatcher.openTexturePicker();
+			texturePicker.visible = true;
+		}
 		private function showSelectedUI():void
 		{
 			hideUI();
@@ -269,22 +314,25 @@ package com.cosmindolha.particledesigner
 			{
 			
 			case 0:
+				showTexturePicker();
+				break;
+			case 1:
 				
 				showParticleConfig();
 				break;
-			case 1: 
+			case 2: 
 				showGravityEmiterConfig();
 				break;
-			case 2: 
+			case 3: 
 				showRadialEmiterConfig();
 				break;	
-			case 3: 
+			case 4: 
 				showColorConfig();
 				break;
-			case 4: 
+			case 5: 
 				showLayers();
 				break;						
-			case 5: 
+			case 6: 
 				moveParticleAround();
 				showLayers();
 			break;
@@ -296,6 +344,12 @@ package com.cosmindolha.particledesigner
 		{
 			var obj:Object = e.customData;
 			
+			if (obj.id == 99)
+			{
+				showUI = ! showUI;
+				showRightButtons(showUI);
+			
+			}
 			if (rightMenuButtonSelected != null)
 			{
 				rightMenuButtonSelected.deselect();
@@ -309,20 +363,40 @@ package com.cosmindolha.particledesigner
 		
 		}
 		
+		private function showRightButtons(v:Boolean):void
+		{
+			for each(var bt:RightMenuButton in rightButtonsArray)
+			{
+				bt.visible = v;
+			}
+		}
 		private function buildRightMenu():void
 		{
 			hideUI();
 						
-			var toX:int = stage.stageWidth - 58;
+			var toX:int = stage.stageWidth - 72;
 			var toY:int = 50;
+			var spacerY:int = 50;
+			if (stage.stageWidth <= 480)
+			{
+				spacerY = 35;
+			}
+			
+			var upButton:RightMenuButton  = new RightMenuButton(dispatcher, 99, "UI");
+			addChild(upButton);
+			upButton.x = toX;
+			
+			rightButtonsArray = new Array();
 			
 			for (var i:int = 0; i < rightMenuArray.length; i++)
 			{
 				var rightMenuButton:RightMenuButton = new RightMenuButton(dispatcher, i, rightMenuArray[i]);
 				rightMenuButton.x = toX;
 				rightMenuButton.y = toY;
-				toY += 50;
+				toY += spacerY;
 				addChild(rightMenuButton);
+				
+				rightButtonsArray.push(rightMenuButton);
 			}
 		}
 		
