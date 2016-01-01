@@ -164,8 +164,8 @@ package com.cosmindolha.particledesigner.ui
 			
 			layerBg.addChild(img);
 			layerBg.touchable = false;
-			img.x = 45;
-			img.y = 45;
+			//img.x = 45;
+			//img.y = 45;
 			}
 		}
 		public function deselect():void

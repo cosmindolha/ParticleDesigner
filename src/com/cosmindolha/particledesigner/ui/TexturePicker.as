@@ -46,7 +46,7 @@ package com.cosmindolha.particledesigner.ui
 		private function onAdded(e:Event):void
 		{
 			var bg:Quad = new Quad(stage.stageWidth, stage.stageHeight, 0x000000);
-			bg.alpha = 0.7;
+			bg.alpha = 0.9;
 			addChild(bg);
 			
 			buildGallery();

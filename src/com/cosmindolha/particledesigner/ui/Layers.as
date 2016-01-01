@@ -27,6 +27,7 @@ package com.cosmindolha.particledesigner.ui
 		private var resources:Resource;
 		private var addLayerButton:ButtonLayers;
 		private var removeLayerButton:ButtonLayers;
+		private var addLayerPicture:ButtonLayers;
 		private var layersArray:Array;
 		private var layerPosX:int;
 		private var layerPosY:int;
@@ -64,12 +65,17 @@ package com.cosmindolha.particledesigner.ui
 			var topImage:Image = new Image(resources.assets.getTexture("layertopgraphic"));
 			
 			addChild(topImage);
-			
+			topImage.x = -44;
 			addLayerButton = new ButtonLayers(dispatcher, 0);
 			removeLayerButton = new ButtonLayers(dispatcher, 1);
+			addLayerPicture = new ButtonLayers(dispatcher, 2);
 			
 			addChild(addLayerButton);
 			addChild(removeLayerButton);
+			addChild(addLayerPicture);
+			
+			addLayerPicture.x = -42;
+			addLayerPicture.y = 6;		
 			
 			addLayerButton.x = 3;
 			addLayerButton.y = 6;
@@ -77,6 +83,7 @@ package com.cosmindolha.particledesigner.ui
 			removeLayerButton.y = 6;
 			
 			addLayerButton.addEventListener("buttonLayerClicked", addLayer);
+			addLayerPicture.addEventListener("pictureLayerClicked", addPicLayer);
 			removeLayerButton.addEventListener("buttonLayerClicked", removeLayer);
 			
 			layersArray = new Array();
@@ -260,6 +267,10 @@ package com.cosmindolha.particledesigner.ui
 			
 			selectY = layerHolder.y;	
 		}
+		private function buildPicLayer(id:int):void
+		{
+			
+		}
 		private function buildLayer(id:int):void
 		{
 			//id should be unique so we can track the different particles systems
@@ -328,6 +339,11 @@ package com.cosmindolha.particledesigner.ui
 			{
 				updateDictionary();
 			}
+		}
+		private function addPicLayer(e:String):void
+		{
+			uniqueLayerID++;
+			buildPicLayer(uniqueLayerID);
 		}
 		private function addLayer(e:String):void
 		{

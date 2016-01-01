@@ -266,7 +266,7 @@ package com.cosmindolha.particledesigner
 			{
 				
 				var localPos:Point = moveTouch.getLocation(this);
-				if (localPos.x < 940)
+				if (localPos.x < stage.stageWidth-100)
 				{
 					dispatcher.moveParticle(localPos);
 				}

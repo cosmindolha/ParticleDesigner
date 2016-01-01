@@ -6,6 +6,8 @@ package com.cosmindolha.particledesigner
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.geom.Rectangle;
+	import starling.utils.RectangleUtil;
+	import starling.utils.ScaleMode;
 	import flash.ui.Multitouch;
 	import flash.ui.MultitouchInputMode;
 	import starling.core.Starling;
@@ -26,7 +28,7 @@ package com.cosmindolha.particledesigner
 			
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.addEventListener(Event.DEACTIVATE, deactivate);
+			//stage.addEventListener(Event.DEACTIVATE, deactivate);
 			
 			stage.addEventListener(Event.RESIZE, resizeStage);
 			// touch or gesture?
@@ -40,18 +42,27 @@ package com.cosmindolha.particledesigner
 			starlingPartDesigner.start();
 			
 			
-			starlingPartDesigner.showStatsAt( "left", "bottom", 2);
+			starlingPartDesigner.showStatsAt( "left", "bottom", 1);
 			
 			
 		}
 		
 		protected function resizeStage(event:Event):void
 		{
-			var viewPortRectangle:Rectangle = new Rectangle();
-			viewPortRectangle.width = stage.stageWidth;
-			viewPortRectangle.height = stage.stageHeight;
+			fit();
+		}
+		protected function fit():void
+		{
+	
+			var viewPortRectangle:Rectangle = RectangleUtil.fit(
+			new Rectangle(0, 0, stage.stageWidth, stage.stageHeight), 
+			new Rectangle(0, 0, stage.stageWidth, stage.stageHeight), 
+			ScaleMode.SHOW_ALL);
+			
 			Starling.current.viewPort = viewPortRectangle;
- 
+			
+			Starling.current.stage.stageWidth = stage.stageWidth;
+			Starling.current.stage.stageHeight = stage.stageHeight;
 		}
 		private function deactivate(e:Event):void 
 		{

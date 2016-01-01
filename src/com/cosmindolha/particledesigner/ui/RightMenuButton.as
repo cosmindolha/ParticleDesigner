@@ -101,7 +101,7 @@ package com.cosmindolha.particledesigner.ui
 		private function buttonBitmap():Texture
 		{
 			var sp:flash.display.Sprite = new flash.display.Sprite();
-			sp.graphics.beginFill(0xad02c8, .4);
+			sp.graphics.beginFill(0xad02c8, .8);
 			sp.graphics.drawRoundRect(0, 0,  70, 45, 5, 5);
 			sp.graphics.endFill();
 			

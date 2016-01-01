@@ -4,6 +4,7 @@ package com.cosmindolha.particledesigner
 	import com.utils.Delay;
 	import de.flintfabrik.starling.utils.ColorArgb;
 	import flash.events.TimerEvent;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
@@ -74,16 +75,17 @@ package com.cosmindolha.particledesigner
 		private var disableScreenSprite:Sprite;
 		private var bubbleConfig:XML;
 		private var textureArray:Array;
+		private var hp:Image;
 	
 		
 		public function ParticleScreen() 
 		{
 			
 			bgQuad = new Quad(768, 1024, 0x65496a);
-			addChild(bgQuad);
+			//addChild(bgQuad);
 			
 			disableScreenSprite = new Sprite();
-			addChild(disableScreenSprite);
+			
 			
 			
 			particleHolder = new Sprite();
@@ -141,6 +143,10 @@ package com.cosmindolha.particledesigner
 			textureArray.push("txt4");
 			textureArray.push("txt5");
 			textureArray.push("txt6");
+			
+			
+
+	
 		}
 
 		private function obChangePartTexture(e:TextureEvent):void
@@ -194,7 +200,8 @@ package com.cosmindolha.particledesigner
 			
 		//starling 1.7
 		//var texture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .5, "bgra", false);
-		
+		if (stage.stageWidth < 1100)
+		{
 		//start starling 2
 		var texture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .5, "bgra");
 		//end starling 2
@@ -215,9 +222,11 @@ package com.cosmindolha.particledesigner
 			
 			setChildIndex(disableScreenSprite, numChildren - 1);
 			setChildIndex(ui, numChildren - 1);
+			var delay:Delay = new Delay(removeFilters, 5);
+		}
 			pauseParticles();
 			
-			var delay:Delay = new Delay(removeFilters, 5);
+			
 		}
 
 		private function removeFilters():void
@@ -301,23 +310,32 @@ package com.cosmindolha.particledesigner
 		}
 		private function updateLayerPreview(id:int):void
 		{
-				
-			//var texture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .05, "bgra", false);
-			//starling 2
-			var texture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .05, "bgra");
-			//starling 2
-				
-			var spriteToCapture:Sprite = particleSpriteDictionary[currentParticleSystemID];
 			
+			var spriteToCapture:Sprite = particleSpriteDictionary[currentParticleSystemID];
+		
 			if (spriteToCapture != null)
 			{
-			texture.draw(spriteToCapture);
-			var img:Image = new Image(texture);
-			img.pivotX = img.width / 2;
-			img.pivotY = img.height / 2;
 			
-			img.scaleX = 0.12;		
-			img.scaleY = 0.12;		
+			try{
+				
+			//var renderTexture:RenderTexture = new RenderTexture(stage.stageWidth, stage.stageHeight, false, .05, "bgra");
+			
+			var myMatrix:Matrix = new Matrix();
+			myMatrix.createBox(.05, .05, 0, 45, 40);
+			
+				
+			var renderTexture:RenderTexture = new RenderTexture(122, 92, false, 1, "bgra");				
+			
+	
+				
+			renderTexture.draw(spriteToCapture, myMatrix);
+			var img:Image = new Image(renderTexture);
+			
+			//img.pivotX = img.width / 2;
+			//img.pivotY = img.height / 2;
+			
+			//img.scaleX = 0.12;		
+			//img.scaleY = 0.12;		
 			
 			var obj:Object = new Object();
 			
@@ -325,6 +343,9 @@ package com.cosmindolha.particledesigner
 			obj.img = img;
 			
 			dispatcher.updateLayer(obj);
+				}catch (err:Error){
+					trace("resource limit");
+				}
 			}
 			
 		}
@@ -541,6 +562,11 @@ package com.cosmindolha.particledesigner
 		}
 		private function init():void
 		{
+			var bghp:Image = new Image(resources.assets.getTexture("bghp"));
+			bghp.touchable = false;
+			
+			addChild(bghp);
+			setChildIndex(bghp, 0);
 			
 			bubbleConfig =  new XML(resources.assets.getXml("story"));
 			var bubbleTexture:Texture = resources.assets.getTexture("txt6");
@@ -554,7 +580,8 @@ package com.cosmindolha.particledesigner
 			newParticleSystem(0);
 			
 			ui = new UIStarlingScreen(resources, dispatcher);
-			addChild(ui);	
+				
+				
 			
 			dispatcher.addEventListener(CurrentValEvent.UI_VALUE, setVal);
 			
@@ -563,7 +590,14 @@ package com.cosmindolha.particledesigner
 			delaySetValueTimer.start();
 				
 			setInitData();
-				
+			
+			hp = new Image(resources.assets.getTexture("hp"));
+			hp.touchable = false;
+			addChild(hp);
+			addChild(disableScreenSprite);
+			addChild(ui);
+			hp.x = 50;
+			hp.y = 85;
 		}
 		
 		private function setValueTimer(e:TimerEvent):void
