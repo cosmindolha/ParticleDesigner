@@ -22,26 +22,28 @@ package com.cosmindolha.particledesigner.ui
 		private var bgLayerImage:Image;
 		private var layerID:int;
 		private var sp:Sprite;
-		private var sendObject:Object;
+		public var sendObject:Object;
 		private var layerBg:Sprite;
 		private var isThisSelected:Boolean;
 		private var particleVisible:Boolean;
 		private var eyeVisibleLayer:Image;
 		private var dragTimer:Timer;
 		private var movingLayer:Boolean;
+		private var isParticleType:Boolean;
 		private var prevYpoz:Number;
 		private var localYpoz:Number;
 		public var locked:Boolean;
 		public var pozy:Number;
 
 		
-		public function LayerHolder(dd:DataDispatcher, rs:Resource, id:int) 
+		public function LayerHolder(dd:DataDispatcher, rs:Resource, id:int, isParticle:Boolean) 
 		{
 			dispatcher = dd;
 			resources = rs;
 			layerID = id;
 			particleVisible = true;
 			movingLayer = false;
+			isParticleType = isParticle;
 			sp = new Sprite();
 			
 			sp.alpha = 0.5;
@@ -75,6 +77,7 @@ package com.cosmindolha.particledesigner.ui
 			sendObject.bt = this;
 			sendObject.id = id;
 			sendObject.localYpoz = 0;
+			sendObject.isParticleType = isParticleType;
 			sendObject.particleVisible = particleVisible;
 			
 			addEventListener(TouchEvent.TOUCH, onTouch);

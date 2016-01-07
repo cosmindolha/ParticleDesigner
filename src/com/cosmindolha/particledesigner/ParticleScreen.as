@@ -16,7 +16,12 @@ package com.cosmindolha.particledesigner
 	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
+	import starling.filters.AnselFilter;
 	import starling.filters.BlurFilter;
+	import starling.filters.GlassFilter;
+	import starling.filters.GodRaysFilter;
+	import starling.filters.NewsprintFilter;
+	import starling.filters.ToyBlockFilter;
 	import starling.textures.RenderTexture;
 
 	import starling.textures.Texture;
@@ -35,6 +40,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.LayerEvents;
 	import com.cosmindolha.particledesigner.events.MoveParticleEvent;
 	import com.cosmindolha.particledesigner.events.TextureEvent;
+	import com.cosmindolha.particledesigner.events.PictureEvent;
 	import flash.display3D.Context3DBlendFactor;
 		
 	/**
@@ -64,11 +70,11 @@ package com.cosmindolha.particledesigner
 		private var blendValues:Array;
 
 		private var allDataArray:Array;
-		private var currentParticleSystemID:int;
-		private var particleHolder:Sprite;
+		private var currentLayerID:int;
+		private var layersHolder:Sprite;
 		private var updateLayerPreviewTimer:Timer;
 		
-		private var particleSpriteDictionary:Dictionary;
+		private var layersSpriteDictionary:Dictionary;
 		
 		private var particleDictionary:Dictionary;
 		private var ui:UIStarlingScreen;
@@ -76,27 +82,30 @@ package com.cosmindolha.particledesigner
 		private var bubbleConfig:XML;
 		private var textureArray:Array;
 		private var hp:Image;
+		private var bf:BlurFilter;
+		private var isParticleType:Boolean;
+
 	
 		
 		public function ParticleScreen() 
 		{
 			
 			bgQuad = new Quad(768, 1024, 0x65496a);
-			//addChild(bgQuad);
+			addChild(bgQuad);
 			
 			disableScreenSprite = new Sprite();
 			
 			
 			
-			particleHolder = new Sprite();
-			addChild(particleHolder);
+			layersHolder = new Sprite();
+			addChild(layersHolder);
 			
 			particleDataArray = new Array();
 			colorDataArray = new Array();
 			allDataArray = new Array();
 			
 			
-			particleSpriteDictionary = new Dictionary();
+			layersSpriteDictionary = new Dictionary();
 			particleDictionary = new Dictionary();
 			
 			dispatcher = new DataDispatcher();
@@ -130,6 +139,10 @@ package com.cosmindolha.particledesigner
 			dispatcher.addEventListener(TextureEvent.OPEN_GALLERY, onOpenTextureGallery);
 			dispatcher.addEventListener(TextureEvent.TEXTURE_PICKED, obChangePartTexture);
 			
+			dispatcher.addEventListener(PictureEvent.OPEN_PICTURE_GALLERY, onOpenPictureGallery);
+			dispatcher.addEventListener(PictureEvent.PICTURE_PICKED, onPicturePicked);
+			
+			dispatcher.addEventListener("exportData", onExportData);
 			
 			updateLayerPreviewTimer = new Timer(500, 1);
 			
@@ -149,11 +162,53 @@ package com.cosmindolha.particledesigner
 	
 		}
 
+		private function onExportData(e:String):void
+		{
+			trace("______________________________ begin export data ______________________________");
+			
+			var ps:FFParticleSystem = particleDictionary[currentLayerID];
+			
+			var sysOption:SystemOptions = ps.exportSystemOptions(sysOption);
+			
+			var varList:XMLList = flash.utils.describeType(sysOption)..variable;
+
+			for(var i:int; i < varList.length(); i++){
+				trace(varList[i].@name+':'+ sysOption[varList[i].@name]);
+			}
+	
+
+			trace("______________________________ end export data ______________________________");
+			
+		}
+		private function onPicturePicked(e:PictureEvent):void
+		{
+			
+			var obj:Object = e.customData;
+			
+			var spriteLayer:Sprite = layersSpriteDictionary[currentLayerID];
+			
+			var img:Image = new Image(resources.assets.getTexture(obj.texture));
+			img.x = -img.width / 2;
+			img.y = -img.height / 2;
+			spriteLayer.addChild(img);
+			
+			spriteLayer.x = stage.stageWidth / 2;
+			spriteLayer.y = stage.stageHeight / 2 ;
+			
+			
+			disableScreenSprite.visible = false;
+			
+			resumeParticles();
+		}
+		private function onOpenPictureGallery(e:PictureEvent):void
+		{
+			disableScreen();
+		}
 		private function obChangePartTexture(e:TextureEvent):void
 		{
 			var obj:Object = e.customData;
 			
-			var ps:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			var ps:FFParticleSystem = particleDictionary[currentLayerID];
 			
 			//var sysOption:SystemOptions = ps.exportSystemOptions(sysOption);
 			var newTexture:Texture = resources.assets.getTexture(obj.texture);
@@ -164,7 +219,7 @@ package com.cosmindolha.particledesigner
 			var sysOption:SystemOptions = SystemOptions.fromXML(xmlOptions, newTexture);
 
 			
-			var spriteHolder:Sprite = particleSpriteDictionary[currentParticleSystemID];
+			var spriteHolder:Sprite = layersSpriteDictionary[currentLayerID];
 			
 			
 			ps.reset();
@@ -175,7 +230,7 @@ package com.cosmindolha.particledesigner
 			newPs.emitterX = 0;
 			newPs.emitterY = 0;
 			
-			particleDictionary[currentParticleSystemID] = newPs;
+			particleDictionary[currentLayerID] = newPs;
 			
 			newPs.x = ps.x ;
 			newPs.y = ps.y ;
@@ -208,7 +263,7 @@ package com.cosmindolha.particledesigner
 		
 			var drawSprite:DisplayObject = root;
 			
-			var bf:BlurFilter = new BlurFilter(4, 4, 1);
+			bf = new BlurFilter(4, 4, 1);
 			drawSprite.filter = bf;
 			
 			texture.draw(drawSprite);
@@ -261,22 +316,26 @@ package com.cosmindolha.particledesigner
 		private function moveParticleAround(e:MoveParticleEvent):void
 		{
 			var point:Point = e.customData;
-			var spriteToMove:Sprite = particleSpriteDictionary[currentParticleSystemID];
+			var spriteToMove:Sprite = layersSpriteDictionary[currentLayerID];
+			
 			if (spriteToMove != null)
 			{
-			spriteToMove.x = point.x;
-			spriteToMove.y = point.y;
+				//if (isParticleType == true)
+				//{
+					spriteToMove.x = point.x;
+					spriteToMove.y = point.y;
+				//}
 			}
 		}
 		private function onLayerIndexChange(e:LayerEvents):void
 		{
 			var obj:Object = e.customData;
 			
-			var spriteToAffect:Sprite = particleSpriteDictionary[obj.id];
-			var spriteMoved:Sprite = particleSpriteDictionary[obj.movedLayerID];
-			var spriteMovedIndex:int = particleHolder.getChildIndex(spriteMoved);
+			var spriteToAffect:Sprite = layersSpriteDictionary[obj.id];
+			var spriteMoved:Sprite = layersSpriteDictionary[obj.movedLayerID];
+			var spriteMovedIndex:int = layersHolder.getChildIndex(spriteMoved);
 			
-			particleHolder.setChildIndex(spriteToAffect, spriteMovedIndex);
+			layersHolder.setChildIndex(spriteToAffect, spriteMovedIndex);
 			
 			
 		}
@@ -284,34 +343,41 @@ package com.cosmindolha.particledesigner
 		{
 			var obj:Object = e.customData;
 			
-			var spriteToAffect:Sprite = particleSpriteDictionary[obj.id];
+	
+			var spriteToAffect:Sprite = layersSpriteDictionary[obj.id];
 			spriteToAffect.visible = obj.particleVisible;
+			
 			
 		}
 		private function onRemoveLayer(e:LayerEvents):void
 		{
 			//trace("deleting")
-			var spriteToDelete:Sprite = particleSpriteDictionary[currentParticleSystemID];
+			var obj:Object = e.customData;
+			var spriteToDelete:Sprite = layersSpriteDictionary[currentLayerID];
 			
-			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			if (obj.isParticleType)
+			{
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
 			
 			currentParticleSystem.dispose();
-			spriteToDelete.removeChild(currentParticleSystem);
-			particleHolder.removeChild(spriteToDelete);
+			delete particleDictionary[currentLayerID];
+			}
+			spriteToDelete.removeChildren();
+			layersHolder.removeChild(spriteToDelete);
 			
-			delete particleSpriteDictionary[currentParticleSystemID];
-			delete particleDictionary[currentParticleSystemID];
+			delete layersSpriteDictionary[currentLayerID];
+			
 			
 		}
 		private function onUpdateTimer(e:TimerEvent):void
 		{
-			updateLayerPreview(currentParticleSystemID);
+			updateLayerPreview(currentLayerID);
 			updateLayerPreviewTimer.start();
 		}
 		private function updateLayerPreview(id:int):void
 		{
 			
-			var spriteToCapture:Sprite = particleSpriteDictionary[currentParticleSystemID];
+			var spriteToCapture:Sprite = layersSpriteDictionary[currentLayerID];
 		
 			if (spriteToCapture != null)
 			{
@@ -339,7 +405,7 @@ package com.cosmindolha.particledesigner
 			
 			var obj:Object = new Object();
 			
-			obj.id = currentParticleSystemID;
+			obj.id = currentLayerID;
 			obj.img = img;
 			
 			dispatcher.updateLayer(obj);
@@ -349,32 +415,46 @@ package com.cosmindolha.particledesigner
 			}
 			
 		}
+
 		private function onLayerChange(e:LayerEvents):void
 		{
 			
-			currentParticleSystemID = e.customData.id;
+			var obj:Object = e.customData;
+			currentLayerID = obj.id;
 			
-			var objectDataHolder:Object = populateDataWithCurrentSet();
-			dispatcher.setData(objectDataHolder);
+			if (obj.isParticleType)
+			{
+				var objectDataHolder:Object = populateDataWithCurrentSet();
+				dispatcher.setData(objectDataHolder);
+			}
 		}
 		private function onNewLayer(e:LayerEvents):void
 		{	
 			var obj:Object = e.customData;
-			newParticleSystem(obj.id);	
+			isParticleType = obj.isParticleType;
+			if (obj.isParticleType)
+			{
+			
+				newParticleSystem(obj.id);	
+			
+			}else {
+				newImageLayer(obj.id);
+			}
 		}
 		//fires when you change the blend color knob
 		private function onRightMenuClicked(e:CurrentMenuButtonEvent):void
 		{
 			var obj:Object = e.customData;
-			
+			isParticleType = obj.isParticleType;
 			var id:int = obj.id;
-			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
+			trace(id)
 			switch(id)
 			{
-			case 2:
+			case 3:
 				currentParticleSystem.emitterType = 0;
 				break;
-			case 3:
+			case 4:
 				currentParticleSystem.emitterType = 1;
 				break;
 			}	
@@ -386,7 +466,7 @@ package com.cosmindolha.particledesigner
 			
 			if (selecedColorButtonID == 5 || selecedColorButtonID == 6)
 			{
-				var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+				var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
 				if (currentParticleSystem != null)
 				{
 					currentParticleSystem[colorDataArray[selecedColorButtonID].props] = returnBlendString(blendValues[id]);
@@ -487,7 +567,7 @@ package com.cosmindolha.particledesigner
 			{
 				//ps[colorDataArray[selecedColorButtonID].props] = colorArgb;
 				
-			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
 			
 				if (currentParticleSystem != null)
 				{
@@ -524,15 +604,27 @@ package com.cosmindolha.particledesigner
 		{
 			init();
 		}
+		private function newImageLayer(uniqueID:int):void
+		{
+			currentLayerID = uniqueID;
+			
+			var layerSprite:Sprite = new Sprite();
+			layersHolder.addChild(layerSprite);
+				
+			layersSpriteDictionary[currentLayerID] = layerSprite;
+			
+
+		}
 		private function newParticleSystem(uniqueID:int):void
 		{
 			
-			currentParticleSystemID = uniqueID;	
+			currentLayerID = uniqueID;
+
 			
 			var newParticleSprite:Sprite = new Sprite();
-			particleHolder.addChild(newParticleSprite);
+			layersHolder.addChild(newParticleSprite);
 			
-			particleSpriteDictionary[currentParticleSystemID] = newParticleSprite;
+			layersSpriteDictionary[currentLayerID] = newParticleSprite;
 			
 			
 			var rndTexture:Texture = resources.assets.getTexture(textureArray[rnd(0, textureArray.length-1)]);
@@ -557,17 +649,16 @@ package com.cosmindolha.particledesigner
 			
 			newParticleSys.start();
 			
-			particleDictionary[currentParticleSystemID] = newParticleSys;
-		
+			particleDictionary[currentLayerID] = newParticleSys;
+			
+			//var gfilter:AnselFilter = new AnselFilter(0.8,0.5,0.5,0);
+			//var gfilter:AnselFilter = new AnselFilter(0.8,0.5,0.5,0);
+
+			//newParticleSprite.filter = gfilter;
 		}
 		private function init():void
 		{
-			var bghp:Image = new Image(resources.assets.getTexture("bghp"));
-			bghp.touchable = false;
-			
-			addChild(bghp);
-			setChildIndex(bghp, 0);
-			
+
 			bubbleConfig =  new XML(resources.assets.getXml("story"));
 			var bubbleTexture:Texture = resources.assets.getTexture("txt6");
 			
@@ -590,14 +681,10 @@ package com.cosmindolha.particledesigner
 			delaySetValueTimer.start();
 				
 			setInitData();
-			
-			hp = new Image(resources.assets.getTexture("hp"));
-			hp.touchable = false;
-			addChild(hp);
+
 			addChild(disableScreenSprite);
 			addChild(ui);
-			hp.x = 50;
-			hp.y = 85;
+
 		}
 		
 		private function setValueTimer(e:TimerEvent):void
@@ -637,37 +724,37 @@ package com.cosmindolha.particledesigner
 			
 			particleDataArray = new Array();
 			
-			particleDataArray.push({label:"Max \n"+"Particles", props:"maxNumParticles", val:0, rot:0});
-			particleDataArray.push({label:"Lifespan", props:"lifespan", val:0, rot:0});
-			particleDataArray.push({label:"Lifespan \n" + "Var", props:"lifespanVariance", val:0, rot:0});
-			particleDataArray.push({label:"Start \nSize", props:"startSize", val:0, rot:0});
-			particleDataArray.push({label:"Start Size \n" + "Var", props:"startSizeVariance", val:0, rot:0});
-			particleDataArray.push({label:"Finish \nSize", props:"endSize", val:0, rot:0});
-			particleDataArray.push({label:"Finish \nSize Var", props:"endSizeVariance", val:0, rot:0});
-			particleDataArray.push({label:"Emiter \nAngle", props:"emitAngle", val:0, rot:0});
-			particleDataArray.push({label:"Emiter \nAngle Var", props:"emitAngleVariance", val:0, rot:0});
-			particleDataArray.push({label:"Rot Start", props:"startRotation", val:0, rot:0});
-			particleDataArray.push({label:"Rot Start \n" + "Var", props:"startRotationVariance", val:0, rot:0});
-			particleDataArray.push({label:"Rot End", props:"endRotation", val:0, rot:0});
-			particleDataArray.push( { label:"Rot End \n" + "Var", props:"endRotationVariance", val:0, rot:0 } );
+			particleDataArray.push({label:"Max \n"+"Particles", props:"maxNumParticles", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Lifespan", props:"lifespan", val:0, rot:0, m:.01});
+			particleDataArray.push({label:"Lifespan \n" + "Var", props:"lifespanVariance", val:0, rot:0, m:.01});
+			particleDataArray.push({label:"Start \nSize", props:"startSize", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Start Size \n" + "Var", props:"startSizeVariance", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Finish \nSize", props:"endSize", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Finish \nSize Var", props:"endSizeVariance", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Emiter \nAngle", props:"emitAngle", val:0, rot:0, m:.1});
+			particleDataArray.push({label:"Emiter \nAngle Var", props:"emitAngleVariance", val:0, rot:0, m:.1});
+			particleDataArray.push({label:"Rot Start", props:"startRotation", val:0, rot:0, m:.1});
+			particleDataArray.push({label:"Rot Start \n" + "Var", props:"startRotationVariance", val:0, rot:0, m:.1});
+			particleDataArray.push({label:"Rot End", props:"endRotation", val:0, rot:0, m:.1});
+			particleDataArray.push( { label:"Rot End \n" + "Var", props:"endRotationVariance", val:0, rot:0, m:.1 } );
 			//emitter gravity
-			particleDataArray.push({label:"X Var", props:"emitterXVariance", val:0, rot:0});
-			particleDataArray.push({label:"Y Var", props:"emitterYVariance", val:0, rot:0});
-			particleDataArray.push({label:"Speed", props:"speed", val:0, rot:0});
-			particleDataArray.push({label:"Speed Var", props:"speedVariance", val:0, rot:0});
-			particleDataArray.push({label:"Gravity X", props:"gravityX", val:0, rot:0});
-			particleDataArray.push({label:"Gravity Y", props:"gravityY", val:0, rot:0});
-			particleDataArray.push({label:"Rad. Acc.", props:"radialAcceleration", val:0, rot:0});
-			particleDataArray.push({label:"Rad. Acc. \n" + "Variance", props:"radialAccelerationVariance", val:0, rot:0});
-			particleDataArray.push({label:"Tan. Acc.", props:"tangentialAcceleration", val:0, rot:0});
-			particleDataArray.push({label:"Tan. Acc. \n" + "Variance", props:"tangentialAccelerationVariance", val:0, rot:0});
+			particleDataArray.push({label:"X Var", props:"emitterXVariance", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Y Var", props:"emitterYVariance", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Speed", props:"speed", val:0, rot:0, m:.1});
+			particleDataArray.push({label:"Speed Var", props:"speedVariance", val:0, rot:0, m:.1});
+			particleDataArray.push({label:"Gravity X", props:"gravityX", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Gravity Y", props:"gravityY", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Rad. Acc.", props:"radialAcceleration", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Rad. Acc. \n" + "Variance", props:"radialAccelerationVariance", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Tan. Acc.", props:"tangentialAcceleration", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Tan. Acc. \n" + "Variance", props:"tangentialAccelerationVariance", val:0, rot:0, m:1});
 			//emitter radial
-			particleDataArray.push({label:"Max. Rad", props:"maxRadius", val:0, rot:0});
-			particleDataArray.push({label:"Max. Rad\nVariance", props:"maxRadiusVariance", val:0, rot:0});
-			particleDataArray.push({label:"Min. Rad", props:"minRadius", val:0, rot:0});
-			particleDataArray.push({label:"Min. Rad\nVariance", props:"minRadiusVariance", val:0, rot:0});
-			particleDataArray.push({label:"Rot/Sec", props:"rotatePerSecond", val:0, rot:0});
-			particleDataArray.push({label:"Rot/Sec\nVariance", props:"rotatePerSecondVariance", val:0, rot:0});
+			particleDataArray.push({label:"Max. Rad", props:"maxRadius", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Max. Rad\nVariance", props:"maxRadiusVariance", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Min. Rad", props:"minRadius", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Min. Rad\nVariance", props:"minRadiusVariance", val:0, rot:0, m:1});
+			particleDataArray.push({label:"Rot/Sec", props:"rotatePerSecond", val:0, rot:0, m:.05});
+			particleDataArray.push({label:"Rot/Sec\nVariance", props:"rotatePerSecondVariance", val:0, rot:0, m:.1});
 	
 
 			
@@ -692,7 +779,7 @@ package com.cosmindolha.particledesigner
 			cloned_ParticleDataArray = clone(particleDataArray);
 			cloned_ColorDataArray = clone(colorDataArray);
 			
-			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
 			
 			
 			var i:int = 0;
@@ -725,7 +812,7 @@ package com.cosmindolha.particledesigner
 		private function setParam():void
 		{
 			//trace(selectedProp)
-			var currentParticleSystem:FFParticleSystem = particleDictionary[currentParticleSystemID];
+			var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
 			if (currentParticleSystem != null)
 			{
 				currentParticleSystem[particleDataArray[selectedProp].props] = uiValue;

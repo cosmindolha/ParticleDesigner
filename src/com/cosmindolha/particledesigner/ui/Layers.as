@@ -83,7 +83,7 @@ package com.cosmindolha.particledesigner.ui
 			removeLayerButton.y = 6;
 			
 			addLayerButton.addEventListener("buttonLayerClicked", addLayer);
-			addLayerPicture.addEventListener("pictureLayerClicked", addPicLayer);
+			addLayerPicture.addEventListener("buttonLayerClicked", addPicLayer);
 			removeLayerButton.addEventListener("buttonLayerClicked", removeLayer);
 			
 			layersArray = new Array();
@@ -270,12 +270,32 @@ package com.cosmindolha.particledesigner.ui
 		private function buildPicLayer(id:int):void
 		{
 			
+			var newLayer:LayerHolder = new LayerHolder(dispatcher, resources, id, false);
+			
+			addChild(newLayer);	
+			layersArray.push(newLayer);
+			
+			if (spacerY == -1)
+			{
+				spacerY = newLayer.height + 2;
+				updateDictionary();
+			}
+			if (currentLayer != null)
+			{
+				pushLayersDownFrom(currentLayer);			
+				newLayer.y = selectY;
+				
+			}else{
+				newLayer.y = 50;
+			}		
+			selectLayer(newLayer);	
+			
 		}
 		private function buildLayer(id:int):void
 		{
 			//id should be unique so we can track the different particles systems
 			
-			var newLayer:LayerHolder = new LayerHolder(dispatcher, resources, id);
+			var newLayer:LayerHolder = new LayerHolder(dispatcher, resources, id, true);
 			
 			addChild(newLayer);	
 			layersArray.push(newLayer);
@@ -342,8 +362,15 @@ package com.cosmindolha.particledesigner.ui
 		}
 		private function addPicLayer(e:String):void
 		{
+			
 			uniqueLayerID++;
 			buildPicLayer(uniqueLayerID);
+			
+			var obj:Object = new Object();
+			obj.id = uniqueLayerID;
+			obj.isParticleType = false;
+			dispatcher.addLayer(obj);
+			
 		}
 		private function addLayer(e:String):void
 		{
@@ -351,6 +378,7 @@ package com.cosmindolha.particledesigner.ui
 			buildLayer(uniqueLayerID);
 			var obj:Object = new Object();
 			obj.id = uniqueLayerID;
+			obj.isParticleType = true;
 			dispatcher.addLayer(obj);
 		}	
 		private function removeLayer(e:String):void
@@ -369,7 +397,9 @@ package com.cosmindolha.particledesigner.ui
 					break;
 				}
 			}
-				dispatcher.removeLayer();	
+			
+			
+			dispatcher.removeLayer(layerToRemove.sendObject);	
 			}
 			
 			

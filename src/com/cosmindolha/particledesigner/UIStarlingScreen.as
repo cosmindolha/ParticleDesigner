@@ -7,6 +7,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.ui.RightMenuButton;
 	import com.cosmindolha.particledesigner.ui.KnobBlendColorStarling;
 	import com.cosmindolha.particledesigner.ui.TexturePicker;
+	import com.cosmindolha.particledesigner.ui.PicturePicker;
 	import com.utils.Delay;
 	import flash.geom.Point;
 	import starling.display.DisplayObject;
@@ -23,6 +24,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.ChangeBlendEvent;
 	import com.cosmindolha.particledesigner.events.LayerEvents;
 	import com.cosmindolha.particledesigner.events.TextureEvent;
+	import com.cosmindolha.particledesigner.events.PictureEvent;
 	import starling.events.Event;
 	import starling.events.Touch;
 	import starling.events.TouchPhase;
@@ -47,7 +49,7 @@ package com.cosmindolha.particledesigner
 		private var colorDataArray:Array;
 		private var buttonID:int;
 		private var buttonColorID:int = 0;
-		private var rightMenuArray:Array;
+		private var rightMenu_p_controlls_Array:Array;
 		private var currentRightMenuButtonID:int;
 		private var rightMenuButtonSelected:RightMenuButton;
 		private var uiSpriteArray:Array;
@@ -65,8 +67,15 @@ package com.cosmindolha.particledesigner
 		private var uiLayers:Layers;
 		private var buttonsBuilt:Boolean;
 		private var texturePicker:TexturePicker;
+		private var picturePicker:PicturePicker;
+		
 		private var showUI:Boolean = true;
 		private var rightButtonsArray:Array;
+		private var particleControllsArray:Array;
+		private var imageControllsArray:Array;
+		private var allRightButtonsArray:Array;
+		private var rightMenu_img_controlls_Array:Array;
+		private var isParticleType:Boolean;
 		
 		//private var selectedSettingsArray:Array;
 		//private var currentParticleSettingsArray:Array;
@@ -76,19 +85,22 @@ package com.cosmindolha.particledesigner
 			resources = rs;
 			dispatcher = dd;
 			
-			rightMenuArray = new Array();
-			//selectedSettingsArray = new Array();
-			//selectedSettingsArray[0] = [];
+			rightMenu_img_controlls_Array = new Array();
 			
-			//currentParticleSettingsArray = new Array();
+			rightMenu_img_controlls_Array.push("Add New");
+			rightMenu_img_controlls_Array.push("Select");
+			rightMenu_img_controlls_Array.push("Animate");
+			rightMenu_img_controlls_Array.push("Filters");
+			rightMenu_img_controlls_Array.push("Delete");
 			
-			rightMenuArray.push("Particle \nTexture");
-			rightMenuArray.push("Particle \nConfig");
-			rightMenuArray.push("Em. Type\nGravity");
-			rightMenuArray.push("Em. Type\nRadial");
-			rightMenuArray.push("Color \nConfig");
-			rightMenuArray.push("Layers");
-			rightMenuArray.push("Move \nParticle");
+			
+			rightMenu_p_controlls_Array = new Array();	
+			rightMenu_p_controlls_Array.push("Particle \nTexture");
+			rightMenu_p_controlls_Array.push("Particle \nConfig");
+			rightMenu_p_controlls_Array.push("Em. Type\nGravity");
+			rightMenu_p_controlls_Array.push("Em. Type\nRadial");
+			rightMenu_p_controlls_Array.push("Color \nConfig");
+			rightMenu_p_controlls_Array.push("Move \nParticle");
 			
 			//layers
 			
@@ -98,7 +110,7 @@ package com.cosmindolha.particledesigner
 			//texture gallery
 			
 			texturePicker = new TexturePicker(dispatcher, resources);
-			
+			picturePicker = new PicturePicker(dispatcher, resources);
 			
 			//controllers
 			knobBlendColorController = new KnobBlendColorStarling(dispatcher, resources);
@@ -136,6 +148,7 @@ package com.cosmindolha.particledesigner
 			//other ui elements
 			uiSpriteArray.push(uiLayers);
 			uiSpriteArray.push(texturePicker);
+			uiSpriteArray.push(picturePicker);
 			
 			
 			
@@ -161,12 +174,16 @@ package com.cosmindolha.particledesigner
 			dispatcher.addEventListener(TextureEvent.TEXTURE_PICKED, onChangePartTexture);
 			
 			
-				
+			dispatcher.addEventListener(PictureEvent.PICTURE_PICKED, onPicturePicked);
 			
 			
-			
+			isParticleType = true;
 			uiLayers.visible = true;
 			
+		}
+		private function onPicturePicked(e:PictureEvent):void
+		{
+			picturePicker.visible = false;
 		}
 		private function onChangePartTexture(e:TextureEvent):void
 		{
@@ -210,13 +227,47 @@ package com.cosmindolha.particledesigner
 			
 			addToUI();
 		}
+		private function showParticleControlls():void
+		{
+			for each(var bt:RightMenuButton in particleControllsArray)
+			{
+				bt.visible = true;
+			}
+		}	
+		private function showImageControlls():void
+		{
+			for each(var bt:RightMenuButton in imageControllsArray)
+			{
+				bt.visible = true;
+			}
+		}
 		private function onNewLayer(e:LayerEvents):void
 		{
+			var obj:Object = e.customData;
 			
+			showRightButtons(false);
+			isParticleType = obj.isParticleType;
+			
+			if (isParticleType)
+			{
+				showParticleControlls();
+			}else{
+				
+				showImageControlls();
+			}
 		}
 		private function onLayerChange(e:LayerEvents):void
 		{
-			
+			var obj:Object = e.customData;
+			showRightButtons(false);
+			isParticleType = obj.isParticleType;
+			if (isParticleType)
+			{
+				showParticleControlls();
+			}else{
+				
+				showImageControlls();
+			}
 		}
 		private function onChangeBlendEvent(e:ChangeBlendEvent):void
 		{
@@ -301,6 +352,11 @@ package com.cosmindolha.particledesigner
 			}
 		}
 
+		private function showPicturePicker():void
+		{
+			dispatcher.openPicturePicker();
+			picturePicker.visible = true;
+		}
 		private function showTexturePicker():void
 		{
 			
@@ -312,34 +368,75 @@ package com.cosmindolha.particledesigner
 			hideUI();
 			switch (currentRightMenuButtonID)
 			{
-			
 			case 0:
-				showTexturePicker();
-				break;
-			case 1:
-				
-				showParticleConfig();
-				break;
-			case 2: 
-				showGravityEmiterConfig();
-				break;
-			case 3: 
-				showRadialEmiterConfig();
-				break;	
-			case 4: 
-				showColorConfig();
-				break;
-			case 5: 
-				showLayers();
-				break;						
-			case 6: 
-				moveParticleAround();
 				showLayers();
 			break;
 				
+			case 1:			
+				showTexturePicker();
+				break;
+			case 2:
+				
+				showParticleConfig();
+				break;
+			case 3: 
+				showGravityEmiterConfig();
+				break;
+			case 4: 
+				showRadialEmiterConfig();
+				break;	
+			case 5: 
+				showColorConfig();
+				break;
+			case 6: 
+				showLayers();
+				moveParticleAround();
+				break;
+			case 7:
+				showLayers();
+				showPicturePicker();
+			break;		
+			case 8:
+				showLayers();
+				selectImage();
+				moveParticleAround();
+			break;		
+			
+			case 9:
+				animateImage();
+			break;		
+			case 10:
+				addFiltersImage();
+			break;		
+			case 11:
+				deleteImage();
+			break;
+			case 101:
+				dispatcher.exportData();
+			break;
 			}
 		}
-		
+		private function deleteImage():void
+		{
+			
+		}		
+		private function addFiltersImage():void
+		{
+			
+		}		
+		private function animateImage():void
+		{
+			
+		}	
+		private function selectImage():void
+		{
+			
+		}
+		private function addNewImage():void
+		{
+			//open gallery
+			
+		}
 		private function onRightMenuClicked(e:CurrentMenuButtonEvent):void
 		{
 			var obj:Object = e.customData;
@@ -347,8 +444,20 @@ package com.cosmindolha.particledesigner
 			if (obj.id == 99)
 			{
 				showUI = ! showUI;
-				showRightButtons(showUI);
-			
+				//showRightButtons(showUI);
+				if (showUI == false)
+				{
+					showRightButtons(showUI);
+				}
+				if (showUI)
+				{
+					if (isParticleType)
+					{
+						showParticleControlls();
+					}else{	
+						showImageControlls();
+					}
+				}
 			}
 			if (rightMenuButtonSelected != null)
 			{
@@ -365,14 +474,20 @@ package com.cosmindolha.particledesigner
 		
 		private function showRightButtons(v:Boolean):void
 		{
-			for each(var bt:RightMenuButton in rightButtonsArray)
+			for each(var bt:RightMenuButton in allRightButtonsArray)
 			{
 				bt.visible = v;
 			}
+					
+
 		}
 		private function buildRightMenu():void
 		{
 			hideUI();
+			allRightButtonsArray = new Array();
+			particleControllsArray = new Array();
+			imageControllsArray = new Array();
+			
 						
 			var toX:int = stage.stageWidth - 72;
 			var toY:int = 50;
@@ -382,21 +497,49 @@ package com.cosmindolha.particledesigner
 				spacerY = 35;
 			}
 			
+			var exportButton:RightMenuButton =  new RightMenuButton(dispatcher, 101, "Export");
+			addChild(exportButton);
+			exportButton.x = stage.stageWidth - 80;
+			exportButton.y = stage.stageHeight - 50;
+			
 			var upButton:RightMenuButton  = new RightMenuButton(dispatcher, 99, "UI");
 			addChild(upButton);
-			upButton.x = toX;
+			upButton.x = toX;		
 			
-			rightButtonsArray = new Array();
+			var layersButton:RightMenuButton  = new RightMenuButton(dispatcher, 0, "Layers");
+			addChild(layersButton);
+			layersButton.x = toX;			
+			layersButton.y = toY;
+			toY += spacerY;
+
+			allRightButtonsArray.push(layersButton);
+			particleControllsArray.push(layersButton);
+			imageControllsArray.push(layersButton);
 			
-			for (var i:int = 0; i < rightMenuArray.length; i++)
+			var i:int = 1;
+			for (i = 0; i < rightMenu_p_controlls_Array.length; i++)
 			{
-				var rightMenuButton:RightMenuButton = new RightMenuButton(dispatcher, i, rightMenuArray[i]);
+				var rightMenuButton:RightMenuButton = new RightMenuButton(dispatcher, i+1, rightMenu_p_controlls_Array[i]);
 				rightMenuButton.x = toX;
 				rightMenuButton.y = toY;
 				toY += spacerY;
 				addChild(rightMenuButton);
 				
-				rightButtonsArray.push(rightMenuButton);
+				particleControllsArray.push(rightMenuButton);
+				allRightButtonsArray.push(rightMenuButton);
+			}
+			toY = 100;
+			for (i = 0; i < rightMenu_img_controlls_Array.length; i++)
+			{
+				var rightMenuButtonIMG:RightMenuButton = new RightMenuButton(dispatcher, i+1+rightMenu_p_controlls_Array.length, rightMenu_img_controlls_Array[i]);
+			
+				rightMenuButtonIMG.x = toX;
+				rightMenuButtonIMG.y = toY;
+				rightMenuButtonIMG.visible = false;
+				toY += spacerY;
+				addChild(rightMenuButtonIMG);
+				allRightButtonsArray.push(rightMenuButtonIMG);
+				imageControllsArray.push(rightMenuButtonIMG);
 			}
 		}
 		
@@ -500,6 +643,8 @@ package com.cosmindolha.particledesigner
 			sendObj.label = particleDataArray[buttonID].label;
 			sendObj.val = particleDataArray[buttonID].val;
 			sendObj.rot = particleDataArray[buttonID].rot;
+			sendObj.m = particleDataArray[buttonID].m;
+			
 			dispatcher.setKnob(sendObj);
 		}
 		

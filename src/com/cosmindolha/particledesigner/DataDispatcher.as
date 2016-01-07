@@ -3,6 +3,7 @@ package com.cosmindolha.particledesigner
 
 	import com.cosmindolha.particledesigner.events.CurrentValEvent;
 	import com.cosmindolha.particledesigner.events.CurrentButtonEvent;
+	import com.cosmindolha.particledesigner.events.PictureEvent;
 	import com.cosmindolha.particledesigner.events.SetKnobEvent;
 	import com.cosmindolha.particledesigner.events.SetDataEvent;
 	import com.cosmindolha.particledesigner.events.ColorPickerEvent;
@@ -48,6 +49,23 @@ package com.cosmindolha.particledesigner
 		private var openTextureGallerEvent:TextureEvent;
 		private var texturePickedEvent:TextureEvent;
 		
+		private var picturePickedEvent:PictureEvent;
+		private var openPictureEvent:PictureEvent;
+		
+		public function exportData():void
+		{
+			dispatchEvent(new Event("exportData"));
+		}
+		public function openPicturePicker():void
+		{
+			openPictureEvent = new PictureEvent(PictureEvent.OPEN_PICTURE_GALLERY, null);
+			dispatchEvent(openPictureEvent);
+		}
+		public function picturePicked(data:Object):void
+		{
+			picturePickedEvent = new PictureEvent(PictureEvent.PICTURE_PICKED, data);
+			dispatchEvent(picturePickedEvent);
+		}
 		public function texturePicked(data:Object):void
 		{
 			texturePickedEvent = new TextureEvent(TextureEvent.TEXTURE_PICKED, data);
@@ -95,9 +113,9 @@ package com.cosmindolha.particledesigner
 			newLayerEvent = new LayerEvents(LayerEvents.NEW_LAYER, data);
 			dispatchEvent(newLayerEvent);
 		}
-		public function removeLayer():void
+		public function removeLayer(data:Object):void
 		{
-			removeLayerEvent = new LayerEvents(LayerEvents.REMOVE_LAYER, null);
+			removeLayerEvent = new LayerEvents(LayerEvents.REMOVE_LAYER, data);
 			dispatchEvent(removeLayerEvent);
 		}	
 		public function changeLayer(data:Object):void

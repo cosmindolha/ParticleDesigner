@@ -34,6 +34,7 @@ package com.cosmindolha.particledesigner.ui
 		private var knobValue:Number;
 		private var prevVal:Number;
 		private var paramID:int;
+		private var multiplier:Number;
 		
 		
 		public function KnobButtonStarling(dd:DataDispatcher, rr:Resource) 
@@ -108,6 +109,8 @@ package com.cosmindolha.particledesigner.ui
 		{
 			var obj:Object = e.customData;			
 			//trace("knob values ", obj.val);
+			trace(obj.m)
+			multiplier = obj.m;
 			
 			if (obj != null)
 			{
@@ -154,7 +157,7 @@ package com.cosmindolha.particledesigner.ui
 					angle = 360 + angle;
 				}
 				
-				knobValue += (angle > prevVal) ? angle/200 : -angle/200
+				knobValue += (angle > prevVal) ? (angle/200)*multiplier : (-angle/200)*multiplier
 				
 				prevVal = angle;
 				
