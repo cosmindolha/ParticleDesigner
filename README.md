@@ -1,4 +1,4 @@
-Particle Designer for Starling
+Angulex - Particle Designer for Starling
 ==============================
 
 ###Introduction
