@@ -26,6 +26,7 @@ package com.cosmindolha.particledesigner.ui
 			textureArray = new Array();
 			textureArray.push("parrot");
 			textureArray.push("bomb");
+			textureArray.push("angulex");
 
 			
 			

@@ -1,6 +1,9 @@
 Angulex - Particle Designer for Starling
 ==============================
 
+
+![Angulex - Particle Designer](http://cosmindolha.com/wp-content/uploads/2016/01/angulex.jpg)
+
 ###Introduction
 
 Starling http://gamua.com/starling/ is a free open-source framework written in ActionScript 3 that mimics the Flash display list, but renders on GPU using the Flash Stage3D technology.
