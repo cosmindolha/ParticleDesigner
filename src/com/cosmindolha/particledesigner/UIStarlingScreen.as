@@ -549,6 +549,7 @@ package com.cosmindolha.particledesigner
 			var rgbObj:Object = e.customData;
 			
 			colorDataArray[buttonColorID].a = rgbObj.a;
+			//trace(rgbObj.color)
 			colorDataArray[buttonColorID].color = rgbObj.color;
 			colorDataArray[buttonColorID].x = rgbObj.x;
 			colorDataArray[buttonColorID].y = rgbObj.y;

@@ -565,13 +565,14 @@ package com.cosmindolha.particledesigner
 			
 			if (selecedColorButtonID > 0 && selecedColorButtonID < 4)
 			{
-				//ps[colorDataArray[selecedColorButtonID].props] = colorArgb;
-				
+		
 			var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
+
 			
 				if (currentParticleSystem != null)
 				{
 					currentParticleSystem[colorDataArray[selecedColorButtonID].props] = colorArgb;
+					
 				}	
 				
 			}
@@ -811,7 +812,7 @@ package com.cosmindolha.particledesigner
 		}
 		private function setParam():void
 		{
-			//trace(selectedProp)
+			
 			var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
 			if (currentParticleSystem != null)
 			{
