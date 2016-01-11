@@ -137,7 +137,6 @@ package com.cosmindolha.particledesigner.ui
 			spColorPointer.y = obj.y;
 			setColorValue = obj.color;
 			colorAlpha = obj.a;
-			trace(colorAlpha)
 			opacitySprite.rotation = obj.rot;
 			
 			setInitColor();
@@ -234,13 +233,12 @@ package com.cosmindolha.particledesigner.ui
 			obj.x = spColorPointer.x;
 			obj.y = spColorPointer.y;
 			
-			//obj.r = (setColorValue >> 16) & 0xFF;
+
 			obj.r = ((setColorValue >> 16) & 0xFF) / 255.0;;
 			obj.g = ((setColorValue >> 8) & 0xFF) / 255.0;;
 			obj.b = (setColorValue & 0xFF) / 255.0;;
 			obj.a = colorAlpha;
-			obj.arbg = colorAlpha.toString()+setColorValue.toString();
-			//trace(obj.r, obj.g, obj.b)
+			
 			dispatcher.setColor(obj);
 		}
 		private function onLoaded(e:flash.events.Event):void

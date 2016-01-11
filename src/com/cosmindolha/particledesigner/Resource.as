@@ -43,7 +43,7 @@ package com.cosmindolha.particledesigner
 
 		private function onError(e:Event):void
 		{
-				trace(e.data);
+				trace("resource error, ", e.data);
 		}
 		
 	}

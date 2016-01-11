@@ -1,18 +1,19 @@
 package com.cosmindolha.particledesigner.ui 
 {
+	import com.cosmindolha.particledesigner.DataDispatcher;
+	import com.cosmindolha.particledesigner.Resource;
+	import flash.display.BitmapData;
+	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
-	import starling.text.TextField;
-	import starling.text.TextFieldAutoSize;
-//	import starling.text.TextFormat;
-	import starling.utils.*;
-	import flash.display.BitmapData;
-	import starling.textures.Texture;
-	import starling.display.Image;
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
-	import com.cosmindolha.particledesigner.DataDispatcher;
+	import starling.text.TextField;
+	import starling.text.TextFieldAutoSize;
+	import starling.textures.Texture;
+	import starling.utils.*;
+//	import starling.text.TextFormat;
 		
 	/**
 	 * ...
@@ -26,8 +27,16 @@ package com.cosmindolha.particledesigner.ui
 		private var dispatcher:DataDispatcher;
 		private var sendObject:Object;
 		private var id:int;
+		private var toogleIMG:Image;
+
+		private var toggleable:Boolean;
+		private var onOff:Boolean;
+
+		
+		//public var toogleEnabled:Boolean;
 		public function Button(dd:DataDispatcher, iD:int) 
 		{
+			
 			dispatcher = dd;
 			id = iD;
 			sp = new Sprite();
@@ -52,16 +61,28 @@ package com.cosmindolha.particledesigner.ui
 			labelField.y = 3;
 			
 			addEventListener(TouchEvent.TOUCH, onTouch);
+
+		}
+		public function set toogleEnabled(t:Boolean):void
+		{
+			toggleable = t;
 			
-			
+		}
+
+		public function switchToggle():void
+		{
+			onOff = !onOff;
+
+			sp.alpha = onOff ? 1 : 0.3;
+
 		}
 		public function deselect():void
 		{
-			sp.alpha = 0.3;
+			if (toggleable == false) sp.alpha = 0.3;
 		}
 		public function select():void
 		{
-			sp.alpha = 1;
+			if (toggleable == false) sp.alpha = 1;
 		}
 		private function onTouch(e:TouchEvent):void
 		{
@@ -71,17 +92,18 @@ package com.cosmindolha.particledesigner.ui
 			
 			if (downTouch != null)
 			{
-					sp.alpha = 1;
-					
-					
-					
+					if (toggleable == false) sp.alpha = 1;					
+					if (toggleable) switchToggle();
 			}		
 			if (upTouch != null)
 			{
-					sp.alpha = 0.3;
+					if (toggleable == false) sp.alpha = 0.3;
 					sendObject = new Object();
 					sendObject.bt = this;
 					sendObject.id = id;
+					sendObject.toggleable = toggleable;
+					if (toggleable) sendObject.onOff = onOff;
+					
 					dispatcher.buttonClicked(sendObject)
 			}
 	

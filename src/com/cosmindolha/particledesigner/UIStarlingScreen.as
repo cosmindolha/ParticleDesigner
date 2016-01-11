@@ -10,6 +10,8 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.ui.PicturePicker;
 	import com.utils.Delay;
 	import flash.geom.Point;
+	import flash.net.FileFilter;
+	import flash.net.FileReference;
 	import starling.display.DisplayObject;
 	import starling.display.Image;
 	import starling.display.Quad;
@@ -30,7 +32,7 @@ package com.cosmindolha.particledesigner
 	import starling.events.TouchPhase;
 	import starling.events.TouchEvent;
 	import starling.textures.Texture;
-	
+	import flash.events.Event;
 	/**
 	 * ...
 	 * @author cosmin dolha
@@ -76,6 +78,7 @@ package com.cosmindolha.particledesigner
 		private var allRightButtonsArray:Array;
 		private var rightMenu_img_controlls_Array:Array;
 		private var isParticleType:Boolean;
+		private var file:FileReference;
 		
 		//private var selectedSettingsArray:Array;
 		//private var currentParticleSettingsArray:Array;
@@ -87,11 +90,11 @@ package com.cosmindolha.particledesigner
 			
 			rightMenu_img_controlls_Array = new Array();
 			
-			rightMenu_img_controlls_Array.push("Add New");
-			rightMenu_img_controlls_Array.push("Select");
-			rightMenu_img_controlls_Array.push("Animate");
-			rightMenu_img_controlls_Array.push("Filters");
-			rightMenu_img_controlls_Array.push("Delete");
+			rightMenu_img_controlls_Array.push("Add Img");
+			rightMenu_img_controlls_Array.push("Move Img");
+			//rightMenu_img_controlls_Array.push("Animate");
+			//rightMenu_img_controlls_Array.push("Filters");
+			//rightMenu_img_controlls_Array.push("Delete");
 			
 			
 			rightMenu_p_controlls_Array = new Array();	
@@ -152,7 +155,7 @@ package com.cosmindolha.particledesigner
 			
 			
 			
-			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			addEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
 			
 			dispatcher.addEventListener(CurrentButtonEvent.SELECTED_BUTTON, onButtonPressed);
 			
@@ -180,6 +183,9 @@ package com.cosmindolha.particledesigner
 			isParticleType = true;
 			uiLayers.visible = true;
 			
+			file = new FileReference();
+			file.addEventListener( flash.events.Event.SELECT, doFileSelect );
+			file.addEventListener( flash.events.Event.COMPLETE, doFileComplete );
 		}
 		private function onPicturePicked(e:PictureEvent):void
 		{
@@ -189,7 +195,7 @@ package com.cosmindolha.particledesigner
 		{
 			texturePicker.visible = false;
 		}
-		private function onAddedToStage(e:Event):void
+		private function onAddedToStage(e:starling.events.Event):void
 		{
 			var scaleF:Number = 1;
 			
@@ -413,8 +419,32 @@ package com.cosmindolha.particledesigner
 			break;
 			case 101:
 				dispatcher.exportData();
+			break;	
+			case 102:
+				//dispatcher.loadData();
+				loadXML();
 			break;
 			}
+		}
+		private function doFileComplete(e:flash.events.Event):void
+		{
+			var loadedXML:XML = new XML(file.data.readMultiByte( file.data.bytesAvailable, "utf-8" ));
+
+			var obj:Object = new Object();
+			obj.xml = loadedXML;
+			
+			dispatcher.applyXML(obj);
+		}
+		private function doFileSelect(e:flash.events.Event):void
+		{
+			file.load();
+		}
+		private function loadXML():void
+		{
+			
+			file.browse( [new FileFilter( "Pex File", "*.pex" )] );
+			
+			
 		}
 		private function deleteImage():void
 		{
@@ -497,10 +527,15 @@ package com.cosmindolha.particledesigner
 				spacerY = 35;
 			}
 			
+			var loadButton:RightMenuButton =  new RightMenuButton(dispatcher, 102, "Load");
+			addChild(loadButton);
+			loadButton.x = stage.stageWidth - 73;
+			loadButton.y = stage.stageHeight - 90;		
+			
 			var exportButton:RightMenuButton =  new RightMenuButton(dispatcher, 101, "Export");
 			addChild(exportButton);
-			exportButton.x = stage.stageWidth - 80;
-			exportButton.y = stage.stageHeight - 50;
+			exportButton.x = stage.stageWidth - 73;
+			exportButton.y = stage.stageHeight - 40;
 			
 			var upButton:RightMenuButton  = new RightMenuButton(dispatcher, 99, "UI");
 			addChild(upButton);
@@ -626,11 +661,12 @@ package com.cosmindolha.particledesigner
 		
 		private function onButtonPressed(e:CurrentButtonEvent):void
 		{
-			if (knobController.visible == false)
-			{
-				knobController.visible = true;
-			}
+			
+		
+	
+			
 			var obj:Object = e.customData;
+			
 			if (buttonSelected != null)
 			{
 				buttonSelected.deselect()
@@ -639,14 +675,25 @@ package com.cosmindolha.particledesigner
 			selectedButton.select();
 			buttonSelected = obj.bt;
 			buttonID = obj.id;
+			
+			knobController.visible = obj.toggleable ? false : true;
+			
 			var sendObj:Object = new Object();
+			if (obj.toggleable) sendObj.val = obj.onOff;
+			
+			if (obj.toggleable == false)
+			{
 			
 			sendObj.label = particleDataArray[buttonID].label;
-			sendObj.val = particleDataArray[buttonID].val;
+			sendObj.val = particleDataArray[buttonID].val
 			sendObj.rot = particleDataArray[buttonID].rot;
 			sendObj.m = particleDataArray[buttonID].m;
 			
 			dispatcher.setKnob(sendObj);
+			
+			}else{
+				dispatcher.setValue(sendObj);
+			}
 		}
 		
 		private function buildButtons():void
@@ -654,26 +701,30 @@ package com.cosmindolha.particledesigner
 			
 			buttonsBuilt = true;
 			var i:int;
-			//from 0-15 particle config
-			//from 15-23 emitter type gravity
+			//from 0-16 particle config
+			//from 16-24 emitter type gravity
 			
 			//particle config
-			for (i = 0; i < 15; i++)
+			for (i = 0; i < 16; i++)
 			{
 				var button:Button = new Button(dispatcher, i);
 				button.text = particleDataArray[i].label;
+				if (i == 0)
+				{
+					button.toogleEnabled = true;
+				}
 				buttonHolderConfig.addChild(button);
 			}
 			//emitter type gravity
 			
-			for (i = 15; i < 23; i++)
+			for (i = 16; i < 24; i++)
 			{
 				var buttonE:Button = new Button(dispatcher, i);
 				buttonE.text = particleDataArray[i].label;
 				buttonHolderEmitterGravity.addChild(buttonE);
 			}		
 			//emitter type radial
-			for (i = 23; i < 29; i++)
+			for (i = 24; i < 30; i++)
 			{
 				var buttonR:Button = new Button(dispatcher, i);
 				buttonR.text = particleDataArray[i].label;

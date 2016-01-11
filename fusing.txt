@@ -1,0 +1,189 @@
+101
+______________________________ begin export data ______________________________
+isAnimated:false
+gravityX:11.63
+loops:1
+gravityY:0
+firstFrame:0
+lifespan:1.1346729863277507
+lastFrame:-1
+lifespanVariance:0.25864657374808786
+maxParticles:56
+sourceX:0
+sourceY:0
+maxRadius:100
+sourceVarianceX:0
+maxRadiusVariance:150
+sourceVarianceY:0
+texture:[object SubTexture]
+minRadiusVariance:0
+angleVariance:2.6815637425890535
+blendFuncSource:one
+minRadius:10
+startParticleSize:12.815565951030496
+premultipliedAlpha:true
+startParticleSizeVariance:10.42
+radialAcceleration:0
+forceSortFlag:false
+radialAccelerationVariance:0
+finishParticleSizeVariance:23.34739770603301
+randomStartFrames:false
+blendFuncDestination:oneMinusSourceAlpha
+rotationStart:2
+finishParticleSize:19.301966522520978
+rotationStartVariance:2
+rotatePerSecondVariance:1
+rotationEnd:0
+rotatePerSecond:1
+rotationEndVariance:0
+sortFunction:null
+duration:-1
+startColor:[object ColorArgb]
+finishColor:[object ColorArgb]
+startColorVariance:[object ColorArgb]
+finishColorVariance:[object ColorArgb]
+excactBounds:false
+customFunction:null
+emitAngleAlignedRotation:false
+speedVariance:30
+spawnTime:0
+animationLength:1
+tangentialAcceleration:0
+angle:189.67400174267584
+tangentialAccelerationVariance:0
+speed:100
+atlasXML:null
+tinted:true
+filter:null
+mFrameLUT:[object Frame]
+emitterType:0
+fadeInTime:0
+fadeOutTime:0
+______________________________ end export data ______________________________
+0
+101
+______________________________ begin export data ______________________________
+isAnimated:false
+gravityX:11.63
+loops:1
+gravityY:0
+firstFrame:0
+lifespan:1.0216885467482772
+lastFrame:-1
+lifespanVariance:0.28544824478488406
+maxParticles:77
+sourceX:0
+sourceY:0
+maxRadius:100
+sourceVarianceX:0
+maxRadiusVariance:150
+sourceVarianceY:0
+texture:[object SubTexture]
+minRadiusVariance:0
+angleVariance:16.09127118388704
+blendFuncSource:one
+minRadius:10
+startParticleSize:5.273754369365444
+premultipliedAlpha:true
+startParticleSizeVariance:0.1344503003404529
+radialAcceleration:0
+forceSortFlag:false
+radialAccelerationVariance:1.1745290003801216
+finishParticleSizeVariance:12.047152548630809
+randomStartFrames:false
+blendFuncDestination:oneMinusSourceAlpha
+rotationStart:57.89212297733539
+finishParticleSize:7.802483690920806
+rotationStartVariance:2
+rotatePerSecondVariance:1
+rotationEnd:0
+rotatePerSecond:1
+rotationEndVariance:0
+sortFunction:null
+duration:-1
+startColor:[object ColorArgb]
+finishColor:[object ColorArgb]
+startColorVariance:[object ColorArgb]
+finishColorVariance:[object ColorArgb]
+excactBounds:false
+customFunction:null
+emitAngleAlignedRotation:false
+speedVariance:30
+spawnTime:0
+animationLength:1
+tangentialAcceleration:0
+angle:184.23606735033724
+tangentialAccelerationVariance:5.8515152949753455
+speed:54.680815641516745
+atlasXML:null
+tinted:true
+filter:null
+mFrameLUT:[object Frame]
+emitterType:0
+fadeInTime:0
+fadeOutTime:0
+______________________________ end export data ______________________________
+0
+101
+______________________________ begin export data ______________________________
+isAnimated:false
+gravityX:11.63
+loops:1
+gravityY:0
+firstFrame:0
+lifespan:0.2519437620596675
+lastFrame:-1
+lifespanVariance:0.2519437620596675
+maxParticles:21
+sourceX:0
+sourceY:0
+maxRadius:100
+sourceVarianceX:0
+maxRadiusVariance:150
+sourceVarianceY:3.352931302148581
+texture:[object SubTexture]
+minRadiusVariance:0
+angleVariance:2
+blendFuncSource:one
+minRadius:10
+startParticleSize:29.609474604546953
+premultipliedAlpha:true
+startParticleSizeVariance:10.42
+radialAcceleration:0
+forceSortFlag:false
+radialAccelerationVariance:0
+finishParticleSizeVariance:0
+randomStartFrames:false
+blendFuncDestination:oneMinusSourceAlpha
+rotationStart:180.858924518923
+finishParticleSize:10
+rotationStartVariance:2
+rotatePerSecondVariance:1
+rotationEnd:70.43300027703062
+rotatePerSecond:1
+rotationEndVariance:0
+sortFunction:null
+duration:-1
+startColor:[object ColorArgb]
+finishColor:[object ColorArgb]
+startColorVariance:[object ColorArgb]
+finishColorVariance:[object ColorArgb]
+excactBounds:false
+customFunction:null
+emitAngleAlignedRotation:false
+speedVariance:30
+spawnTime:0
+animationLength:1
+tangentialAcceleration:0
+angle:189.14889478950874
+tangentialAccelerationVariance:0
+speed:100
+atlasXML:null
+tinted:true
+filter:null
+mFrameLUT:[object Frame]
+emitterType:0
+fadeInTime:0
+fadeOutTime:0
+______________________________ end export data ______________________________
+

@@ -15,6 +15,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.UpdateLayerPreviewEvent;
 	import com.cosmindolha.particledesigner.events.MoveParticleEvent;
 	import com.cosmindolha.particledesigner.events.TextureEvent;
+	import com.cosmindolha.particledesigner.events.XmlLoadedEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
@@ -51,6 +52,7 @@ package com.cosmindolha.particledesigner
 		
 		private var picturePickedEvent:PictureEvent;
 		private var openPictureEvent:PictureEvent;
+		private var xmlLoadedEvent:XmlLoadedEvent;
 		
 		public function exportData():void
 		{
@@ -181,6 +183,11 @@ package com.cosmindolha.particledesigner
 			dispatchEvent(setValueEvent);
 		}
 		
+		public function applyXML(data:Object):void
+		{
+			xmlLoadedEvent= new XmlLoadedEvent(XmlLoadedEvent.XML_LOADED, data);
+			dispatchEvent(xmlLoadedEvent);
+		}
 		public function assetsLoaded():void
 		{
 			dispatchEvent(new Event("ASSETS_LOADED"));

@@ -7,6 +7,7 @@ package com.cosmindolha.particledesigner
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.net.FileReference;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
@@ -41,6 +42,7 @@ package com.cosmindolha.particledesigner
 	import com.cosmindolha.particledesigner.events.MoveParticleEvent;
 	import com.cosmindolha.particledesigner.events.TextureEvent;
 	import com.cosmindolha.particledesigner.events.PictureEvent;
+	import com.cosmindolha.particledesigner.events.XmlLoadedEvent;
 	import flash.display3D.Context3DBlendFactor;
 		
 	/**
@@ -84,6 +86,7 @@ package com.cosmindolha.particledesigner
 		private var hp:Image;
 		private var bf:BlurFilter;
 		private var isParticleType:Boolean;
+		private var currentTexture:String;
 
 	
 		
@@ -141,6 +144,7 @@ package com.cosmindolha.particledesigner
 			
 			dispatcher.addEventListener(PictureEvent.OPEN_PICTURE_GALLERY, onOpenPictureGallery);
 			dispatcher.addEventListener(PictureEvent.PICTURE_PICKED, onPicturePicked);
+			dispatcher.addEventListener(XmlLoadedEvent.XML_LOADED, onXmlLoaded);
 			
 			dispatcher.addEventListener("exportData", onExportData);
 			
@@ -162,23 +166,56 @@ package com.cosmindolha.particledesigner
 	
 		}
 
+		private function onXmlLoaded(e:XmlLoadedEvent):void
+		{
+			var obj:Object = e.customData;
+			var xml:XML = new XML(obj.xml);
+			
+			
+			var ps:FFParticleSystem = particleDictionary[currentLayerID];	
+			var spriteHolder:Sprite = layersSpriteDictionary[currentLayerID];
+			
+			ps.reset();
+			ps.dispose();
+			
+			
+			var thisTexture:Texture =  resources.assets.getTexture(currentTexture);
+			var sysOption:SystemOptions = SystemOptions.fromXML(xml, thisTexture);
+			
+			var newPs:FFParticleSystem = new FFParticleSystem(sysOption);
+			newPs.emitterX = 0;
+			newPs.emitterY = 0;
+			
+			particleDictionary[currentLayerID] = newPs;
+			
+			newPs.x = ps.x ;
+			newPs.y = ps.y ;
+			
+			spriteHolder.removeChild(ps);
+			
+			spriteHolder.addChild(newPs);
+			
+			newPs.start();
+			
+		}
 		private function onExportData(e:String):void
 		{
-			trace("______________________________ begin export data ______________________________");
+			if (isParticleType == false)
+			{
+			//trace("______________________________ begin export data ______________________________", currentLayerID);
 			
-			var ps:FFParticleSystem = particleDictionary[currentLayerID];
+			var ps:FFParticleSystem = particleDictionary[currentLayerID];	
+			var xml:XML = ps.exportSystemOptions().exportConfig();
+			var data:ByteArray = new ByteArray();
+			var file:FileReference = new FileReference();
+			data.writeMultiByte (xml, "utf-8" );
+			file.save(data, "newset.pex" );
 			
-			var sysOption:SystemOptions = ps.exportSystemOptions(sysOption);
-			
-			var varList:XMLList = flash.utils.describeType(sysOption)..variable;
-
-			for(var i:int; i < varList.length(); i++){
-				trace(varList[i].@name+':'+ sysOption[varList[i].@name]);
+			//trace(xml.toXMLString())
+			//trace("______________________________ end export data ______________________________");
+			}else{
+				//trace("picture layer")
 			}
-	
-
-			trace("______________________________ end export data ______________________________");
-			
 		}
 		private function onPicturePicked(e:PictureEvent):void
 		{
@@ -212,6 +249,7 @@ package com.cosmindolha.particledesigner
 			
 			//var sysOption:SystemOptions = ps.exportSystemOptions(sysOption);
 			var newTexture:Texture = resources.assets.getTexture(obj.texture);
+			currentTexture = obj.texture;
 			
 			var tempSysOpt:SystemOptions = ps.exportSystemOptions();
 			var xmlOptions:XML = tempSysOpt.exportConfig();
@@ -320,11 +358,8 @@ package com.cosmindolha.particledesigner
 			
 			if (spriteToMove != null)
 			{
-				//if (isParticleType == true)
-				//{
 					spriteToMove.x = point.x;
 					spriteToMove.y = point.y;
-				//}
 			}
 		}
 		private function onLayerIndexChange(e:LayerEvents):void
@@ -421,7 +456,7 @@ package com.cosmindolha.particledesigner
 			
 			var obj:Object = e.customData;
 			currentLayerID = obj.id;
-			
+			isParticleType = obj.isParticleType;
 			if (obj.isParticleType)
 			{
 				var objectDataHolder:Object = populateDataWithCurrentSet();
@@ -448,7 +483,7 @@ package com.cosmindolha.particledesigner
 			isParticleType = obj.isParticleType;
 			var id:int = obj.id;
 			var currentParticleSystem:FFParticleSystem = particleDictionary[currentLayerID];
-			trace(id)
+			//trace(id)
 			switch(id)
 			{
 			case 3:
@@ -627,9 +662,11 @@ package com.cosmindolha.particledesigner
 			
 			layersSpriteDictionary[currentLayerID] = newParticleSprite;
 			
+			var textureString:String = textureArray[rnd(0, textureArray.length - 1)];
 			
-			var rndTexture:Texture = resources.assets.getTexture(textureArray[rnd(0, textureArray.length-1)]);
+			var rndTexture:Texture = resources.assets.getTexture(textureString);
 			
+			currentTexture = textureString;
 			
 			var xmlOptions:XML = sysOpt.exportConfig();
 			
@@ -639,7 +676,7 @@ package com.cosmindolha.particledesigner
 			
 			var newParticleSys:FFParticleSystem = new FFParticleSystem(sysOpt);
 			
-
+			
 			newParticleSys.emitterX = 0;
 			newParticleSys.emitterY = 0;
 					
@@ -716,8 +753,8 @@ package com.cosmindolha.particledesigner
 			colorDataArray.push({label:"Start Color", props:"startColor", r:0,b:0,g:0,a:0,rot:0, x:0, y:0});
 			colorDataArray.push( { label:"Start Color  \n" + "Variance", props:"startColorVariance", r:0,b:0,g:0,a:0,rot:0, val:0, x:0, y:0 } );		
 			
-			colorDataArray.push({label:"End Color", props:"startColor", r:0,b:0,g:0,a:0,rot:0, x:0, y:0});
-			colorDataArray.push( { label:"End Color  \n" + "Variance", props:"startColorVariance", r:0, b:0, g:0, a:0, rot:0, x:0, y:0 } );
+			colorDataArray.push({label:"End Color", props:"endColor", r:0,b:0,g:0,a:0,rot:0, x:0, y:0});
+			colorDataArray.push( { label:"End Color  \n" + "Variance", props:"endColorVariance", r:0, b:0, g:0, a:0, rot:0, x:0, y:0 } );
 			
 			colorDataArray.push({label:"Blending \n"+"Source", props:"blendFuncSource", blend:0, rot:0, id:0});
 			colorDataArray.push({label:"Blending \n"+"Destination", props:"blendFuncDestination", blend:0, rot:0, id:0});
@@ -725,6 +762,7 @@ package com.cosmindolha.particledesigner
 			
 			particleDataArray = new Array();
 			
+			particleDataArray.push({label:"Aligned\nParticles", props:"emitAngleAlignedRotation", val:0, rot:0, m:.1});
 			particleDataArray.push({label:"Max \n"+"Particles", props:"maxNumParticles", val:0, rot:0, m:1});
 			particleDataArray.push({label:"Lifespan", props:"lifespan", val:0, rot:0, m:.01});
 			particleDataArray.push({label:"Lifespan \n" + "Var", props:"lifespanVariance", val:0, rot:0, m:.01});

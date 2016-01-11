@@ -42,6 +42,9 @@ package com.cosmindolha.particledesigner.ui
 			textureArray.push("f4");
 			textureArray.push("f5");
 			textureArray.push("f6");
+			textureArray.push("smoke1");
+			textureArray.push("butterfly");
+			textureArray.push("line");
 		}
 		private function onAdded(e:Event):void
 		{

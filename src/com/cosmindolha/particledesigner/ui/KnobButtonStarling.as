@@ -109,7 +109,7 @@ package com.cosmindolha.particledesigner.ui
 		{
 			var obj:Object = e.customData;			
 			//trace("knob values ", obj.val);
-			trace(obj.m)
+			//trace(obj.m)
 			multiplier = obj.m;
 			
 			if (obj != null)
